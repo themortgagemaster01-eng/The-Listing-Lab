@@ -1,9 +1,17 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Tailwind theme extension. Colors/radius/shadows/durations here mirror
+ * `src/lib/design-tokens.ts` — that file is the source of truth for values
+ * referenced in TS/TSX (Framer Motion durations, etc.); this file is what
+ * makes the same values available as utility classes (`bg-navy-800`,
+ * `duration-fast`, `rounded-2xl`, `shadow-soft`, …).
+ */
 const config: Config = {
   darkMode: "class",
   content: [
     "./src/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
   ],
   theme: {
     container: {
@@ -49,6 +57,8 @@ const config: Config = {
         muted: "var(--color-muted)",
         "muted-foreground": "var(--color-muted-foreground)",
       },
+      // Border radius scale — xl/2xl/3xl are the "card tier" radii used
+      // throughout the app; smaller controls use Tailwind's default scale.
       borderRadius: {
         xl: "0.875rem",
         "2xl": "1.25rem",
@@ -58,6 +68,14 @@ const config: Config = {
         soft: "0 2px 8px -2px rgba(10, 22, 40, 0.06), 0 8px 24px -8px rgba(10, 22, 40, 0.08)",
         "soft-lg": "0 8px 30px -8px rgba(10, 22, 40, 0.12), 0 20px 48px -12px rgba(10, 22, 40, 0.14)",
         "gold-glow": "0 0 0 3px rgba(201, 164, 99, 0.18)",
+      },
+      // Animation duration tokens — matches `DURATIONS` in
+      // `src/lib/design-tokens.ts`. Use `duration-fast` / `duration-base` /
+      // `duration-slow` instead of an arbitrary `duration-[220ms]` value.
+      transitionDuration: {
+        fast: "150ms",
+        base: "300ms",
+        slow: "500ms",
       },
       keyframes: {
         "fade-slide-in": {

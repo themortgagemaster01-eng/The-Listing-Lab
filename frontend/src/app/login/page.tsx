@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { LoginForm } from "@/components/auth/login-form";
-import { Logo } from "@/components/shared/logo";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { Logo } from "@/components/Logo";
 
 export const metadata: Metadata = {
   title: "Sign In | Listing Lab",

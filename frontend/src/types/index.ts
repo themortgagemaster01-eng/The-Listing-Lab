@@ -16,7 +16,12 @@ export interface NavSection {
 /** Status of a property lab / listing workspace. */
 export type PropertyStatus = "ACTIVE" | "DRAFT";
 
-/** A single property lab / listing card shown on the dashboard. */
+/**
+ * A single property lab / listing. The dashboard card only needs the first
+ * six fields; everything below is used to flesh out the Property Workspace
+ * (`/property/[id]`) — headline copy, financial defaults for the Payments
+ * calculator, and a small photo gallery.
+ */
 export interface Property {
   id: string;
   address: string;
@@ -24,6 +29,19 @@ export interface Property {
   status: PropertyStatus;
   assetCount: number;
   imageUrl: string;
+  price?: number;
+  beds?: number;
+  baths?: number;
+  sqft?: number;
+  yearBuilt?: number;
+  lotSize?: string;
+  mlsNumber?: string;
+  headline?: string;
+  description?: string;
+  photos?: string[];
+  listingAgent?: string;
+  annualPropertyTax?: number;
+  annualHomeInsurance?: number;
 }
 
 /** A top-level KPI stat card on the dashboard. */
@@ -80,4 +98,6 @@ export interface QuickAction {
   subtitle: string;
   icon: LucideIcon;
   iconBadgeClass: string;
+  /** Optional destination. When present, the tile navigates there. */
+  href?: string;
 }

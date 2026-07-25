@@ -1,4 +1,5 @@
 import { isSupabaseConfigured } from "@/lib/supabase/client";
+import { describeSupabaseError } from "@/lib/supabase/errors";
 import type { FlyerPhoto, FlyerRecord, PropertyFormData } from "@/lib/flyer/types";
 import {
   loadFlyersLocal,
@@ -26,6 +27,13 @@ import {
  * throws for any reason, e.g. the "mock slug id isn't a real uuid" gap
  * documented in `supabase-store.ts`). UI components never import
  * `local-store.ts` / `supabase-store.ts` directly.
+ *
+ * Every fallback below is logged with `console.error` via
+ * `describeSupabaseError` (real code/message/details from the Supabase
+ * client — bad key, wrong project, missing table because migrations
+ * haven't been run, network failure, etc.) so a failure is loud and
+ * specific in server/browser logs, even though the user-facing behavior
+ * stays a silent, graceful fallback to local storage.
  */
 
 // ---------------------------------------------------------------------------
@@ -37,8 +45,10 @@ export async function loadPropertyForm(propertyId: string): Promise<PropertyForm
     try {
       const remote = await fetchPropertyFormSupabase(propertyId);
       if (remote) return remote;
-    } catch {
-      // Fall through to local storage below.
+    } catch (err) {
+      console.error(
+        `[Listing Lab] Supabase read from 'properties' failed: ${describeSupabaseError(err)}. Falling back to local storage.`
+      );
     }
   }
   return loadPropertyFormLocal(propertyId);
@@ -49,8 +59,10 @@ export async function savePropertyForm(propertyId: string, form: PropertyFormDat
   if (isSupabaseConfigured) {
     try {
       await savePropertyFormSupabase(propertyId, form);
-    } catch {
-      // Local copy above already has the latest edits — safe to ignore here.
+    } catch (err) {
+      console.error(
+        `[Listing Lab] Supabase write to 'properties' failed: ${describeSupabaseError(err)}. Falling back to local storage (local copy already saved).`
+      );
     }
   }
 }
@@ -63,8 +75,10 @@ export async function loadPhotos(propertyId: string): Promise<FlyerPhoto[]> {
   if (isSupabaseConfigured) {
     try {
       return await fetchPhotosSupabase(propertyId);
-    } catch {
-      // Fall through to local storage below.
+    } catch (err) {
+      console.error(
+        `[Listing Lab] Supabase read from 'photos' failed: ${describeSupabaseError(err)}. Falling back to local storage.`
+      );
     }
   }
   return loadPhotosLocal(propertyId);
@@ -77,8 +91,10 @@ export async function savePhotos(propertyId: string, photos: FlyerPhoto[]): Prom
       const resolved = await savePhotosSupabase(propertyId, photos);
       savePhotosLocal(propertyId, resolved);
       return resolved;
-    } catch {
-      // Local copy above already has the latest state.
+    } catch (err) {
+      console.error(
+        `[Listing Lab] Supabase write to 'photos' (or 'property-photos' storage bucket) failed: ${describeSupabaseError(err)}. Falling back to local storage (local copy already saved).`
+      );
     }
   }
   return photos;
@@ -93,8 +109,10 @@ export async function loadFlyers(propertyId: string): Promise<FlyerRecord[]> {
     try {
       const remote = await fetchFlyersSupabase(propertyId);
       if (remote.length > 0) return remote;
-    } catch {
-      // Fall through to local storage below.
+    } catch (err) {
+      console.error(
+        `[Listing Lab] Supabase read from 'marketing_assets'/'flyers' failed: ${describeSupabaseError(err)}. Falling back to local storage.`
+      );
     }
   }
   return loadFlyersLocal(propertyId);
@@ -107,8 +125,10 @@ export async function saveFlyer(propertyId: string, flyer: FlyerRecord, allFlyer
       const cover = await loadPhotos(propertyId);
       const thumbnailUrl = cover.find((p) => p.isCover)?.url ?? cover[0]?.url ?? null;
       await saveFlyerSupabase(flyer, thumbnailUrl);
-    } catch {
-      // Local copy above already has the latest state.
+    } catch (err) {
+      console.error(
+        `[Listing Lab] Supabase write to 'marketing_assets'/'flyers' failed: ${describeSupabaseError(err)}. Falling back to local storage (local copy already saved).`
+      );
     }
   }
 }
@@ -118,8 +138,10 @@ export async function deleteFlyer(propertyId: string, flyer: FlyerRecord, remain
   if (isSupabaseConfigured) {
     try {
       await deleteFlyerSupabase(flyer);
-    } catch {
-      // Local copy above already reflects the deletion.
+    } catch (err) {
+      console.error(
+        `[Listing Lab] Supabase delete from 'marketing_assets'/'flyers' failed: ${describeSupabaseError(err)}. Falling back to local storage (local copy already reflects the deletion).`
+      );
     }
   }
 }

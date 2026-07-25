@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Navy family */
+  --color-navy-50: #eef2f7;
+  --color-navy-100: #dbe3ee;
+  --color-navy-200: #b3c2d9;
+  --color-navy-400: #4a6182;
+  --color-navy-600: #1c3556;
+  --color-navy-700: #142943;
+  --color-navy-800: #0f1f3d;
+  --color-navy-900: #0c1930;
+  --color-navy-950: #0a1628;
+  --color-navy: #0f1f3d;
+
+  /* Gold family */
+  --color-gold-50: #faf6ed;
+  --color-gold-100: #f3e9d0;
+  --color-gold-200: #e6d3a3;
+  --color-gold-400: #d4af6a;
+  --color-gold-500: #c9a463;
+  --color-gold-600: #b08a45;
+  --color-gold: #c9a463;
+
+  /* Success green */
+  --color-success: #16a34a;
+  --color-success-50: #ecfdf3;
+
+  /* Surfaces */
+  --color-background: #fbfaf8;
+  --color-foreground: #0f1f3d;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f5f4f1;
+  --color-border: #e7e5e0;
+  --color-muted: #f2f1ed;
+  --color-muted-foreground: #6b7280;
+}
+
+.dark {
+  --color-background: #0a1628;
+  --color-foreground: #f5f6f8;
+  --color-surface: #101f38;
+  --color-surface-secondary: #142943;
+  --color-border: #1e3151;
+  --color-muted: #16274a;
+  --color-muted-foreground: #9aa8c0;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* Scrollbar styling for horizontally-scrollable rows */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

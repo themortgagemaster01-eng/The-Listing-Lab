@@ -1,4 +1,5 @@
 import { getOpenAIClient } from "@/lib/ai/openai-client";
+import { describeOpenAiError } from "@/lib/ai/openai-error";
 import type { FlyerTextContent } from "@/lib/supabase/types";
 
 /**
@@ -87,14 +88,27 @@ async function requestJson<T>(params: { system: string; user: string }): Promise
     throw new Error("OpenAI client requested without OPENAI_API_KEY configured — check isOpenAIConfigured first.");
   }
 
-  const completion = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: params.system },
-      { role: "user", content: params.user },
-    ],
-  });
+  const completion = await (async () => {
+    try {
+      return await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+        messages: [
+          { role: "system", content: params.system },
+          { role: "user", content: params.user },
+        ],
+      });
+    } catch (err) {
+      // Loud + specific in server logs (real status/code/message), but a
+      // short, specific, user-safe message is what actually propagates up
+      // through the route handler to the Flyer Generator's error UI — see
+      // `src/app/api/ai/generate-flyer-text/route.ts` and
+      // `components/property/flyer/FlyerAiWriter.tsx`.
+      const { logMessage, userMessage } = describeOpenAiError(err);
+      console.error(`[Listing Lab] OpenAI request failed: ${logMessage}`);
+      throw new Error(userMessage);
+    }
+  })();
 
   const raw = completion.choices[0]?.message?.content;
   if (!raw) {

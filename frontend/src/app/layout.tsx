@@ -6,6 +6,16 @@ import { ToastProvider } from "@/components/shared/Toast";
 
 import "./globals.css";
 
+// Boot-time Supabase/OpenAI config-status logging lives in
+// `src/instrumentation.ts` (Next.js's dedicated "run once per server cold
+// start" hook — see that file). Deliberately NOT duplicated here: Next.js
+// production mode renders pages in separate worker processes with their
+// own module cache, so a module-level call in a page/layout module logs
+// once per worker (not once total) the first time each worker handles a
+// request — confirmed while testing this feature. `instrumentation.ts`'s
+// `register()` genuinely runs once per server bootstrap, so it alone is
+// the correct place for this.
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",

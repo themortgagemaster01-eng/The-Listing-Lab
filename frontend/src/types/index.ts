@@ -42,6 +42,18 @@ export interface Property {
   listingAgent?: string;
   annualPropertyTax?: number;
   annualHomeInsurance?: number;
+  /**
+   * Fields added for the AI Flyer Generator (`components/property/flyer/*`).
+   * All optional so the existing mock properties (`src/lib/mock-data.ts`)
+   * keep compiling untouched — the Flyer Generator's own persistence layer
+   * (`src/lib/flyer/*`) fills these in from its property-info form and
+   * treats them as the source of truth once a user has edited them.
+   */
+  propertyType?: string;
+  keyFeatures?: string[];
+  agentEmail?: string;
+  agentPhone?: string;
+  agentPhotoUrl?: string;
 }
 
 /** A top-level KPI stat card on the dashboard. */

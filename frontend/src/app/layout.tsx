@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 
 import { ThemeProvider } from "@/context/theme-context";
+import { ToastProvider } from "@/components/shared/Toast";
 
 import "./globals.css";
 
@@ -46,7 +47,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="font-sans antialiased">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

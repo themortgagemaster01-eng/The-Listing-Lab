@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * Design tokens: the navy/gold/surface scale below is mirrored into
+ * Tailwind's theme in `tailwind.config.ts` (so `bg-navy-800`, `text-gold-500`,
+ * etc. work directly) and into `src/lib/design-tokens.ts` (for values that
+ * need to be referenced from TS/TSX, e.g. Framer Motion transitions). Treat
+ * this file as the canonical color source — update here first.
+ */
 :root {
   /* Navy family */
   --color-navy-50: #eef2f7;

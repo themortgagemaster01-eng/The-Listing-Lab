@@ -6,6 +6,7 @@ import { UploadCloud } from "lucide-react";
 
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useToast } from "@/components/shared/Toast";
 import { TabSegmentedControl, type SegmentOption } from "@/components/property/TabSegmentedControl";
 import { AiEnhanceTab } from "@/components/property/AiEnhanceTab";
 import { VirtualStagingTab } from "@/components/property/VirtualStagingTab";
@@ -27,7 +28,7 @@ const SECTIONS: SegmentOption<"library" | "ai-enhance" | "virtual-staging">[] = 
 
 type SectionId = (typeof SECTIONS)[number]["id"];
 
-function PhotoTile({ src, alt }: { src: string; alt: string }) {
+function PhotoTile({ src, alt, isSample }: { src: string; alt: string; isSample?: boolean }) {
   const [loaded, setLoaded] = React.useState(false);
   return (
     <div className="group relative aspect-square overflow-hidden rounded-2xl border border-border">
@@ -43,13 +44,28 @@ function PhotoTile({ src, alt }: { src: string; alt: string }) {
         )}
         onLoad={() => setLoaded(true)}
       />
+      {/* These are illustrative stand-in photos, not the property's real
+          uploads — labeled so they never get mistaken for actual listing
+          photos (see FILLER_PHOTOS above). */}
+      {isSample && (
+        <span className="absolute bottom-2 left-2 rounded-full bg-navy-950/75 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+          Sample
+        </span>
+      )}
     </div>
   );
 }
 
 function PhotoLibrarySection({ property }: { property: Property }) {
-  const gallery = (property.photos && property.photos.length > 0 ? property.photos : [property.imageUrl]).concat(
-    FILLER_PHOTOS
+  const { showToast } = useToast();
+  const realPhotos = property.photos && property.photos.length > 0 ? property.photos : [property.imageUrl];
+  const gallery = React.useMemo(
+    () => [
+      ...realPhotos.map((src) => ({ src, isSample: false })),
+      ...FILLER_PHOTOS.map((src) => ({ src, isSample: true })),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [property.imageUrl, property.photos]
   );
 
   return (
@@ -57,14 +73,26 @@ function PhotoLibrarySection({ property }: { property: Property }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <button
           type="button"
-          className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background text-center transition-colors hover:border-gold-400 hover:bg-gold-50 dark:hover:bg-gold-500/5"
+          onClick={() =>
+            showToast("Manage real listing photos from Marketing Assets → Flyers → Photos.")
+          }
+          className="flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-background text-center transition-colors hover:border-gold-400 hover:bg-gold-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:hover:bg-gold-500/5"
         >
           <UploadCloud className="h-6 w-6 text-muted-foreground" />
           <span className="px-3 text-xs font-medium text-muted-foreground">Upload Photos</span>
         </button>
 
-        {gallery.map((src, index) => (
-          <PhotoTile key={`${src}-${index}`} src={src} alt={`${property.address} photo ${index + 1}`} />
+        {gallery.map((item, index) => (
+          <PhotoTile
+            key={`${item.src}-${index}`}
+            src={item.src}
+            alt={
+              item.isSample
+                ? `Sample staging photo ${index + 1}`
+                : `${property.address} photo ${index + 1}`
+            }
+            isSample={item.isSample}
+          />
         ))}
       </div>
     </DashboardCard>

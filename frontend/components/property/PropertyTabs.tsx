@@ -43,7 +43,8 @@ export function PropertyTabs({ propertyId }: PropertyTabsProps) {
               key={tab.label}
               href={href}
               className={cn(
-                "relative shrink-0 whitespace-nowrap px-3.5 py-3 text-sm font-medium transition-colors duration-fast",
+                "relative shrink-0 whitespace-nowrap rounded-lg px-3.5 py-3 text-sm font-medium transition-colors duration-fast",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                 active
                   ? "text-navy-800 dark:text-gold-400"
                   : "text-muted-foreground hover:text-foreground"

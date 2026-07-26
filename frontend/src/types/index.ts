@@ -54,6 +54,14 @@ export interface Property {
   agentEmail?: string;
   agentPhone?: string;
   agentPhotoUrl?: string;
+  /**
+   * Agent's mortgage application/contact link (Payment Snapshot feature —
+   * `components/property/payment/*`). Optional, same pattern as
+   * `agentPhotoUrl` above. Used as the Payment Snapshot PDF's QR code
+   * target; falls back to a mailto:/tel: link built from agentEmail/
+   * agentPhone when blank (see src/lib/pdf/qrcode.ts).
+   */
+  agentApplicationUrl?: string;
 }
 
 /** A top-level KPI stat card on the dashboard. */

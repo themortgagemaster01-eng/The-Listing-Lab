@@ -24,3 +24,32 @@ export async function generateQrCodeDataUrl(text: string): Promise<string> {
     },
   });
 }
+
+/**
+ * Builds the URL the Payment Snapshot PDF's QR code should point to: the
+ * agent's real mortgage application/contact link when set
+ * (`PropertyFormData.agentApplicationUrl`), otherwise a `mailto:`/`tel:`
+ * link built from whichever real agent contact field is present.
+ *
+ * There is no fake/placeholder URL fallback here on purpose (see the
+ * Payment Snapshot feature's "no fake data presented as real" constraint) —
+ * if none of applicationUrl/email/phone are set, this returns `null` and
+ * the caller must omit the QR block entirely rather than encode an empty
+ * or fabricated link.
+ */
+export function buildAgentContactQrUrl(agent: {
+  agentApplicationUrl?: string | null;
+  agentEmail?: string | null;
+  agentPhone?: string | null;
+}): string | null {
+  const applicationUrl = agent.agentApplicationUrl?.trim();
+  if (applicationUrl) return applicationUrl;
+
+  const email = agent.agentEmail?.trim();
+  if (email) return `mailto:${email}`;
+
+  const phone = agent.agentPhone?.trim();
+  if (phone) return `tel:${phone.replace(/[^0-9+]/g, "")}`;
+
+  return null;
+}

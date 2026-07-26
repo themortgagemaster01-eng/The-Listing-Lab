@@ -29,6 +29,8 @@ import { parseIntField, parseNumberField } from "@/lib/flyer/mappers";
 
 const PHOTOS_BUCKET = "property-photos";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function requireClient() {
   const client = getSupabaseClient();
   if (!client) throw new Error("Supabase is not configured.");
@@ -134,12 +136,21 @@ export async function fetchPhotosSupabase(propertyId: string): Promise<FlyerPhot
  * state). Simplistic "replace the set" approach — fine at this scale
  * (a handful of listing photos), not built for high-frequency concurrent
  * editors.
+ *
+ * Non-uuid ids (e.g. the `seed-0`/`seed-1` placeholders `seedPhotosFromProperty`
+ * synthesizes so a brand-new property isn't a blank upload zone) are
+ * filtered out here rather than sent to Postgres — `photos.id` is a real
+ * `uuid` column, and a single non-uuid value in the batch fails the whole
+ * upsert (22P02), silently dropping every *real* photo alongside it. These
+ * placeholders were never persisted rows to begin with, so skipping them is
+ * correct, not a data loss.
  */
 export async function savePhotosSupabase(propertyId: string, photos: FlyerPhoto[]): Promise<FlyerPhoto[]> {
   const client = requireClient();
+  const persistable = photos.filter((p) => UUID_RE.test(p.id));
   const resolved: FlyerPhoto[] = [];
 
-  for (const photo of photos) {
+  for (const photo of persistable) {
     let url = photo.url;
     if (url.startsWith("data:")) {
       const path = `${propertyId}/${photo.id}.jpg`;

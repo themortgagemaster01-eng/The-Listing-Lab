@@ -27,6 +27,14 @@ export interface PropertyFormData {
   agentPhone: string;
   /** Data URL (mock mode) or Supabase Storage public URL (configured mode). */
   agentPhotoUrl: string;
+  /**
+   * Agent's mortgage application/contact link — used by the Payment
+   * Snapshot PDF's QR code (see src/lib/pdf/qrcode.ts). Optional/blank is
+   * expected and handled: the QR falls back to a mailto:/tel: link built
+   * from agentEmail/agentPhone rather than a broken QR pointing at nothing.
+   * Never fabricate a value for this field.
+   */
+  agentApplicationUrl: string;
 }
 
 export function emptyPropertyForm(seed?: Partial<PropertyFormData>): PropertyFormData {
@@ -46,6 +54,7 @@ export function emptyPropertyForm(seed?: Partial<PropertyFormData>): PropertyFor
     agentEmail: "",
     agentPhone: "",
     agentPhotoUrl: "",
+    agentApplicationUrl: "",
     ...seed,
   };
 }

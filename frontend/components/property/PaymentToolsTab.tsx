@@ -1,39 +1,30 @@
 "use client";
 
-import * as React from "react";
-
-import { TabSegmentedControl, type SegmentOption } from "@/components/property/TabSegmentedControl";
-import { PaymentsTab } from "@/components/property/PaymentsTab";
-import { ClosingCostsTab } from "@/components/property/ClosingCostsTab";
+import { PaymentSnapshotWizard } from "@/components/property/payment/PaymentSnapshotWizard";
 import type { Property } from "@/types";
-
-const SECTIONS: SegmentOption<"payments" | "closing-costs">[] = [
-  { id: "payments", label: "Payments" },
-  { id: "closing-costs", label: "Closing Costs" },
-];
-
-type SectionId = (typeof SECTIONS)[number]["id"];
 
 interface PaymentToolsTabProps {
   property: Property;
+  /**
+   * Kept for backwards-compat with the page.tsx `?section=` query param the
+   * old Payments/Closing Costs segmented control used — no longer branches
+   * on anything since the Payment Snapshot wizard folds both into one page
+   * (one source of truth for "what will this cost the buyer" instead of two
+   * calculators that could disagree).
+   */
   initialSection?: string;
 }
 
 /**
- * Payment Tools tab host: folds the former standalone "Payments" and
- * "Closing Costs" tabs in as sub-sections. The mortgage calculator
- * (`PaymentsTab`) is the default/star section — Closing Costs is one click
- * away via the segmented control, never buried behind extra navigation.
+ * Payment Tools tab host. Previously split "Payments" and "Closing Costs"
+ * into a segmented control backed by two separate, disagreeing calculators
+ * (`PaymentsTab` + `ClosingCostsTab` — now superseded/unused, kept in the
+ * repo only for reference). The Payment Snapshot wizard
+ * (`components/property/payment/PaymentSnapshotWizard.tsx`) replaces both
+ * with a single client-presentation-ready page: payment inputs, a
+ * multi-loan-program comparison, a cash-to-close breakdown (which absorbs
+ * the old Closing Costs tab's NY-specific line items), and PDF export.
  */
-export function PaymentToolsTab({ property, initialSection }: PaymentToolsTabProps) {
-  const resolvedInitial = SECTIONS.some((s) => s.id === initialSection) ? (initialSection as SectionId) : "payments";
-  const [section, setSection] = React.useState<SectionId>(resolvedInitial);
-
-  return (
-    <div className="space-y-6">
-      <TabSegmentedControl options={SECTIONS} value={section} onChange={setSection} />
-
-      {section === "payments" ? <PaymentsTab property={property} /> : <ClosingCostsTab property={property} />}
-    </div>
-  );
+export function PaymentToolsTab({ property }: PaymentToolsTabProps) {
+  return <PaymentSnapshotWizard property={property} />;
 }

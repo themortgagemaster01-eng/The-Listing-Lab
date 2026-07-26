@@ -86,7 +86,13 @@ export function VirtualStagingTab({ property }: VirtualStagingTabProps) {
                   Preview with <span className="font-semibold text-foreground capitalize">{selectedStyle}</span>{" "}
                   staging
                 </p>
-                <Button type="button" variant="outline" size="sm" disabled>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  title="AI virtual staging is coming soon"
+                >
                   <Sparkles className="h-3.5 w-3.5" />
                   Stage Room
                 </Button>

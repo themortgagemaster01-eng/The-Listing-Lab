@@ -26,6 +26,7 @@ import type { Property as MockProperty, PropertyStatus } from "@/types";
 export interface PropertyRow {
   id: string;
   address: string;
+  city_state_zip: string | null;
   mls_number: string | null;
   price: number | null;
   bedrooms: number | null;
@@ -146,6 +147,7 @@ export interface Flyer {
 export interface DbProperty {
   id: string;
   address: string;
+  cityStateZip: string | null;
   mlsNumber: string | null;
   price: number | null;
   bedrooms: number | null;
@@ -214,6 +216,7 @@ export function mapPropertyRow(row: PropertyRow): DbProperty {
   return {
     id: row.id,
     address: row.address,
+    cityStateZip: row.city_state_zip,
     mlsNumber: row.mls_number,
     price: row.price,
     bedrooms: row.bedrooms,
@@ -255,7 +258,7 @@ export function mapPropertyRowToMockProperty(
   return {
     id: row.id,
     address: row.address,
-    cityStateZip: extra.cityStateZip ?? "",
+    cityStateZip: row.city_state_zip ?? extra.cityStateZip ?? "",
     status,
     assetCount: extra.assetCount ?? 0,
     imageUrl: extra.imageUrl ?? "",
@@ -267,6 +270,11 @@ export function mapPropertyRowToMockProperty(
     lotSize: row.lot_size ?? undefined,
     mlsNumber: row.mls_number ?? undefined,
     listingAgent: row.agent_name ?? undefined,
+    propertyType: row.property_type ?? undefined,
+    keyFeatures: row.key_features ?? undefined,
+    agentEmail: row.agent_email ?? undefined,
+    agentPhone: row.agent_phone ?? undefined,
+    agentPhotoUrl: row.agent_photo_url ?? undefined,
     ...extra,
   };
 }

@@ -304,7 +304,7 @@ export const quickActions: QuickAction[] = [
     subtitle: "Start a new listing",
     icon: FolderKanban,
     iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
-    href: `/property/${EXAMPLE_PROPERTY_ID}`,
+    href: "/property/new",
   },
   {
     id: "qa-2",

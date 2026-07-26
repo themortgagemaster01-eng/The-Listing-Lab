@@ -54,6 +54,32 @@ export async function loadPropertyForm(propertyId: string): Promise<PropertyForm
   return loadPropertyFormLocal(propertyId);
 }
 
+/**
+ * Creates a brand-new real property (Supabase-backed, real `uuid`). Unlike
+ * `savePropertyForm` below — which is deliberately "always succeeds,
+ * silently falls back to local storage" so an already-open editing session
+ * never breaks — a *new* property has no meaning if the remote write fails:
+ * there's no existing record for the UI to keep showing, and redirecting to
+ * `/property/{id}` for an id that was never actually saved to Supabase would
+ * just 404. So this throws a specific, actionable error instead of
+ * swallowing it, and the caller (`/property/new`) is expected to show it.
+ */
+export async function createProperty(form: PropertyFormData): Promise<string> {
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      "Real property creation requires Supabase to be configured — check that the NEXT_PUBLIC_SUPABASE_* env vars are set."
+    );
+  }
+  const id = crypto.randomUUID();
+  try {
+    await savePropertyFormSupabase(id, form);
+  } catch (err) {
+    throw new Error(`Couldn't create the property: ${describeSupabaseError(err)}`);
+  }
+  savePropertyFormLocal(id, form);
+  return id;
+}
+
 export async function savePropertyForm(propertyId: string, form: PropertyFormData): Promise<void> {
   savePropertyFormLocal(propertyId, form);
   if (isSupabaseConfigured) {

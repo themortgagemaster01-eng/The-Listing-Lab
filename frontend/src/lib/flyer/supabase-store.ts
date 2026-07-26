@@ -43,6 +43,7 @@ function propertyRowToForm(row: PropertyRow): PropertyFormData {
   const mapped = mapPropertyRow(row);
   return emptyPropertyForm({
     address: mapped.address,
+    cityStateZip: mapped.cityStateZip ?? "",
     mlsNumber: mapped.mlsNumber ?? "",
     price: mapped.price != null ? String(mapped.price) : "",
     bedrooms: mapped.bedrooms != null ? String(mapped.bedrooms) : "",
@@ -72,6 +73,7 @@ export async function savePropertyFormSupabase(propertyId: string, form: Propert
   const payload = {
     id: propertyId,
     address: form.address,
+    city_state_zip: form.cityStateZip || null,
     mls_number: form.mlsNumber || null,
     price: parseNumberField(form.price) ?? null,
     bedrooms: parseIntField(form.bedrooms) ?? null,

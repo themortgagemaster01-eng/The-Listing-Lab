@@ -76,3 +76,20 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Respect the OS-level "reduce motion" preference: shrink every CSS
+   transition/animation to near-zero instead of disabling it outright, so
+   Framer Motion's timeline-driven animations (which read durations from JS,
+   not CSS) still resolve their initial/animate state changes immediately
+   rather than getting stuck mid-transition or never firing.
+   https://web.dev/prefers-reduced-motion/ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

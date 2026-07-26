@@ -14,7 +14,7 @@ const quickCreateOptions = [
     label: "New Property Lab",
     subtitle: "Start a fresh listing workspace",
     icon: FolderPlus,
-    href: `/property/${EXAMPLE_PROPERTY_ID}`,
+    href: "/property/new",
     iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
   },
   {

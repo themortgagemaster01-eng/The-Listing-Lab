@@ -40,6 +40,8 @@ export interface PropertyRow {
   agent_email: string | null;
   agent_phone: string | null;
   agent_photo_url: string | null;
+  /** Agent's mortgage application/contact link — see 0003_add_payment_snapshots.sql. Used as the Payment Snapshot PDF's QR code target (src/lib/pdf/qrcode.ts); falls back to a mailto/tel link when blank. */
+  agent_application_url: string | null;
   status: string;
   created_at: string;
   updated_at: string;
@@ -99,6 +101,32 @@ export interface FlyerRow {
   updated_at: string;
 }
 
+/**
+ * Shape of `payment_snapshots.inputs` / `.results` — kept as loosely-typed
+ * `Record<string, unknown>` here (rather than importing the concrete
+ * `PaymentFormData`/`PaymentSnapshotResults` types from
+ * `src/lib/payment/types.ts`) to avoid a dependency cycle between the
+ * generic Supabase row layer and the feature-specific payment module,
+ * mirroring how `FlyerTextContent` above is the one exception that IS
+ * shared both ways (it's generic content, not a feature-internal shape).
+ * `src/lib/payment/supabase-store.ts` casts to/from the concrete types at
+ * its boundary.
+ */
+export type PaymentSnapshotInputs = Record<string, unknown>;
+export type PaymentSnapshotResultsJson = Record<string, unknown>;
+
+export interface PaymentSnapshotRow {
+  id: string;
+  marketing_asset_id: string;
+  property_id: string;
+  inputs: PaymentSnapshotInputs;
+  results: PaymentSnapshotResultsJson | null;
+  pdf_url: string | null;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // ---------------------------------------------------------------------------
 // App-facing types (camelCase)
 // ---------------------------------------------------------------------------
@@ -138,6 +166,18 @@ export interface Flyer {
   updatedAt: string;
 }
 
+export interface PaymentSnapshot {
+  id: string;
+  marketingAssetId: string;
+  propertyId: string;
+  inputs: PaymentSnapshotInputs;
+  results: PaymentSnapshotResultsJson | null;
+  pdfUrl: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /**
  * DB-backed property shape, camelCase. Superset-friendly with the mock
  * `Property` type where fields overlap (address, price, bedrooms/beds,
@@ -161,6 +201,7 @@ export interface DbProperty {
   agentEmail: string | null;
   agentPhone: string | null;
   agentPhotoUrl: string | null;
+  agentApplicationUrl: string | null;
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -212,6 +253,20 @@ export function mapFlyerRow(row: FlyerRow): Flyer {
   };
 }
 
+export function mapPaymentSnapshotRow(row: PaymentSnapshotRow): PaymentSnapshot {
+  return {
+    id: row.id,
+    marketingAssetId: row.marketing_asset_id,
+    propertyId: row.property_id,
+    inputs: row.inputs ?? {},
+    results: row.results,
+    pdfUrl: row.pdf_url,
+    version: row.version,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 export function mapPropertyRow(row: PropertyRow): DbProperty {
   return {
     id: row.id,
@@ -230,6 +285,7 @@ export function mapPropertyRow(row: PropertyRow): DbProperty {
     agentEmail: row.agent_email,
     agentPhone: row.agent_phone,
     agentPhotoUrl: row.agent_photo_url,
+    agentApplicationUrl: row.agent_application_url,
     status: row.status,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -275,6 +331,7 @@ export function mapPropertyRowToMockProperty(
     agentEmail: row.agent_email ?? undefined,
     agentPhone: row.agent_phone ?? undefined,
     agentPhotoUrl: row.agent_photo_url ?? undefined,
+    agentApplicationUrl: row.agent_application_url ?? undefined,
     ...extra,
   };
 }

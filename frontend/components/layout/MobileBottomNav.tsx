@@ -44,16 +44,27 @@ function TabButton({ tab, active }: { tab: TabItem; active: boolean }) {
     </>
   );
 
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl";
+
   if (tab.href) {
     return (
-      <Link href={tab.href} aria-label={tab.label} className="flex flex-1 flex-col items-center gap-1 py-1.5">
+      <Link
+        href={tab.href}
+        aria-label={tab.label}
+        className={cn("flex flex-1 flex-col items-center gap-1 py-1.5", focusRing)}
+      >
         {content}
       </Link>
     );
   }
 
   return (
-    <button type="button" aria-label={tab.label} className="flex flex-1 flex-col items-center gap-1 py-1.5">
+    <button
+      type="button"
+      aria-label={tab.label}
+      className={cn("flex flex-1 flex-col items-center gap-1 py-1.5", focusRing)}
+    >
       {content}
     </button>
   );

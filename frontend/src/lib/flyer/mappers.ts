@@ -58,6 +58,7 @@ export function seedFormFromProperty(property: Property): PropertyFormData {
     agentEmail: property.agentEmail ?? "",
     agentPhone: property.agentPhone ?? "",
     agentPhotoUrl: property.agentPhotoUrl ?? "",
+    agentApplicationUrl: property.agentApplicationUrl ?? "",
   });
 }
 

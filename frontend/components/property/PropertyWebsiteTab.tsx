@@ -6,6 +6,7 @@ import { Check, Circle, Copy, ExternalLink, Sparkles } from "lucide-react";
 
 import { DashboardCard } from "@/components/shared/DashboardCard";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useToast } from "@/components/shared/Toast";
 import { TemplateGalleryCard, type TemplateOption } from "@/components/property/TemplateGalleryCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -45,6 +46,7 @@ interface PropertyWebsiteTabProps {
 }
 
 export function PropertyWebsiteTab({ property }: PropertyWebsiteTabProps) {
+  const { showToast } = useToast();
   const [selectedId, setSelectedId] = React.useState(THEMES[0].id);
   const [copied, setCopied] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
@@ -54,11 +56,13 @@ export function PropertyWebsiteTab({ property }: PropertyWebsiteTabProps) {
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(`https://${url}`);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      // Clipboard API can fail silently in unsupported contexts — no-op for this mock flow.
+      // Clipboard API can fail silently in unsupported contexts (e.g. insecure
+      // origin, permission denied) — surface that instead of pretending it worked.
+      showToast("Couldn't copy the link — copy it manually instead.");
     }
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
   }
 
   return (
@@ -139,7 +143,13 @@ export function PropertyWebsiteTab({ property }: PropertyWebsiteTabProps) {
           </Button>
         </div>
 
-        <Button type="button" variant="gold" size="lg" className="w-full sm:w-auto sm:self-start">
+        <Button
+          type="button"
+          variant="gold"
+          size="lg"
+          onClick={() => showToast("Full Property Website generation is coming soon.")}
+          className="w-full sm:w-auto sm:self-start"
+        >
           <Sparkles className="h-4 w-4" />
           Generate {selectedTheme.name} Website
         </Button>

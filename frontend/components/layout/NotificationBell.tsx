@@ -10,10 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/shared/Toast";
 import { notifications } from "@/lib/mock-data";
 
 /** Header notification bell with an unread-count badge and a dropdown preview list. */
 export function NotificationBell() {
+  const { showToast } = useToast();
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
@@ -22,7 +24,7 @@ export function NotificationBell() {
         <button
           type="button"
           aria-label="Notifications"
-          className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-foreground transition-colors hover:bg-muted"
+          className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-surface text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <Bell className="h-[18px] w-[18px]" />
           {unreadCount > 0 && (
@@ -45,7 +47,10 @@ export function NotificationBell() {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="justify-center text-sm font-medium text-navy-700 dark:text-gold-400">
+        <DropdownMenuItem
+          onSelect={() => showToast("A full notifications page is coming soon.")}
+          className="justify-center text-sm font-medium text-navy-700 dark:text-gold-400"
+        >
           View all notifications
         </DropdownMenuItem>
       </DropdownMenuContent>

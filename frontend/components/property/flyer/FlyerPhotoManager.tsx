@@ -50,7 +50,16 @@ export function FlyerPhotoManager({ photos, onChange, saveStatus }: FlyerPhotoMa
     try {
       const resized = await Promise.all(imageFiles.map((file) => resizeImageFile(file)));
       const nextPhotos: FlyerPhoto[] = resized.map((r, i) => ({
-        id: `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
+        // Must be a real uuid, not just any unique string — `photos.id` is a
+        // Postgres `uuid` column (see supabase/migrations/0001_init.sql), and
+        // `savePhotosSupabase` upserts by this id. An older id scheme here
+        // caused every real upload to silently fail to persist (batched
+        // alongside the seed placeholder's non-uuid id, which fails the
+        // whole upsert with 22P02) — see supabase-store.ts's UUID filter for
+        // the other half of that fix.
+        id: typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 8)}`,
         url: r.dataUrl,
         displayOrder: photos.length + i,
         isCover: photos.length === 0 && i === 0,

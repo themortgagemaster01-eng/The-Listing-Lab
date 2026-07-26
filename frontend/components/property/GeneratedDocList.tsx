@@ -47,7 +47,13 @@ export function GeneratedDocList({ title, docs }: GeneratedDocListProps) {
                     Generated {doc.date} · {doc.sizeLabel}
                   </p>
                 </div>
-                <ComingSoonButton variant="ghost" size="sm" icon={Download} message="Download is coming soon" />
+                <ComingSoonButton
+                  variant="ghost"
+                  size="sm"
+                  icon={Download}
+                  message="Download is coming soon"
+                  aria-label={`Download ${doc.title}`}
+                />
               </div>
             );
           })}

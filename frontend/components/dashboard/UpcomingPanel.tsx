@@ -1,13 +1,21 @@
+"use client";
+
 import { Plus } from "lucide-react";
 
 import { DashboardCard } from "@/components/shared/DashboardCard";
+import { useToast } from "@/components/shared/Toast";
 import { upcomingEvents } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 /** Right-column panel: upcoming calendar events with date blocks and status dots. */
 export function UpcomingPanel() {
+  const { showToast } = useToast();
+
   return (
-    <DashboardCard title="Upcoming" action={{ label: "View calendar" }}>
+    <DashboardCard
+      title="Upcoming"
+      action={{ label: "View calendar", onClick: () => showToast("A full calendar view is coming soon.") }}
+    >
       <div className="space-y-1">
         {upcomingEvents.map((event) => (
           <div
@@ -36,7 +44,8 @@ export function UpcomingPanel() {
 
       <button
         type="button"
-        className="mt-3 flex items-center gap-1.5 text-sm font-medium text-navy-700 transition-colors hover:text-gold-600 dark:text-gold-400 dark:hover:text-gold-300"
+        onClick={() => showToast("Adding events is coming soon.")}
+        className="mt-3 flex items-center gap-1.5 rounded-lg text-sm font-medium text-navy-700 transition-colors hover:text-gold-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:text-gold-400 dark:hover:text-gold-300"
       >
         <Plus className="h-4 w-4" />
         Add new event

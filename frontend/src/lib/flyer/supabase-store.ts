@@ -59,6 +59,7 @@ function propertyRowToForm(row: PropertyRow): PropertyFormData {
     agentEmail: mapped.agentEmail ?? "",
     agentPhone: mapped.agentPhone ?? "",
     agentPhotoUrl: mapped.agentPhotoUrl ?? "",
+    agentApplicationUrl: mapped.agentApplicationUrl ?? "",
   });
 }
 
@@ -89,6 +90,7 @@ export async function savePropertyFormSupabase(propertyId: string, form: Propert
     agent_email: form.agentEmail || null,
     agent_phone: form.agentPhone || null,
     agent_photo_url: form.agentPhotoUrl || null,
+    agent_application_url: form.agentApplicationUrl || null,
   };
   const { error } = await client.from("properties").upsert(payload, { onConflict: "id" });
   if (error) throw error;

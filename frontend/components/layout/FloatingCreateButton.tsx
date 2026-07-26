@@ -59,7 +59,7 @@ export function FloatingCreateButton() {
         type="button"
         aria-label="Create"
         onClick={() => setOpen(true)}
-        className="relative flex flex-1 flex-col items-center"
+        className="relative flex flex-1 flex-col items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <motion.span
           whileTap={{ scale: 0.92 }}

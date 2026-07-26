@@ -41,6 +41,7 @@ export function TabSegmentedControl<T extends string>({
           onClick={() => onChange(option.id)}
           className={cn(
             "rounded-xl px-3.5 py-2 text-sm font-medium transition-colors duration-fast",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
             value === option.id
               ? "bg-navy-950 text-white dark:bg-gold-500 dark:text-navy-950"
               : "text-muted-foreground hover:text-foreground"

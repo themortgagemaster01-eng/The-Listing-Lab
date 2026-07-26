@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { PropertyHeader } from "@/components/property/PropertyHeader";
 import { PropertyTabs } from "@/components/property/PropertyTabs";
-import { getPropertyById } from "@/lib/mock-data";
+import { loadPropertyForWorkspace } from "@/lib/property/loader";
 
 interface PropertyLayoutProps {
   children: React.ReactNode;
@@ -14,8 +14,8 @@ interface PropertyLayoutProps {
  * tab nav render here, once, so switching tabs only swaps the page content
  * below — no header flicker/re-render.
  */
-export default function PropertyLayout({ children, params }: PropertyLayoutProps) {
-  const property = getPropertyById(params.id);
+export default async function PropertyLayout({ children, params }: PropertyLayoutProps) {
+  const property = await loadPropertyForWorkspace(params.id);
   if (!property) {
     notFound();
   }

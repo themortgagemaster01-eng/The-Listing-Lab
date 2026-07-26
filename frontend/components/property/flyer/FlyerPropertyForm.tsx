@@ -232,7 +232,7 @@ export function FlyerPropertyForm({ form, onChange, saveStatus }: FlyerPropertyF
             {photoError && <span className="text-[11px] text-red-500">{photoError}</span>}
           </div>
 
-          <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Agent Name">
               <Input
                 value={form.agentName}
@@ -254,6 +254,14 @@ export function FlyerPropertyForm({ form, onChange, saveStatus }: FlyerPropertyF
                 value={form.agentPhone}
                 onChange={(e) => set("agentPhone", e.target.value)}
                 placeholder="(555) 123-4567"
+              />
+            </Field>
+            <Field label="Application/Contact Link">
+              <Input
+                type="url"
+                value={form.agentApplicationUrl}
+                onChange={(e) => set("agentApplicationUrl", e.target.value)}
+                placeholder="https://your-application-link.example.com"
               />
             </Field>
           </div>

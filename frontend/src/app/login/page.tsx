@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { LoginForm } from "@/components/auth/LoginForm";
 import { Logo } from "@/components/Logo";
@@ -46,7 +47,17 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <LoginForm />
+          {/*
+            LoginForm calls `useSearchParams()` (to read `?redirectTo=`,
+            set by middleware.ts when redirecting a signed-out visitor away
+            from a protected route) — Next.js requires any Client Component
+            using that hook to sit inside a Suspense boundary, or static
+            generation of this page fails at build time with
+            "useSearchParams() should be wrapped in a suspense boundary".
+          */}
+          <Suspense fallback={null}>
+            <LoginForm />
+          </Suspense>
         </div>
 
         <p className="mt-8 text-center text-xs text-muted-foreground">

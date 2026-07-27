@@ -1,0 +1,35 @@
+-- ============================================================================
+-- Add websites.published_snapshot (draft/publish separation)
+-- ============================================================================
+-- SUPERSEDES a design decision made in 0004_add_websites.sql / the original
+-- `src/lib/website/loadPublicWebsite.ts`: that version deliberately had the
+-- public `/site/[slug]` page read PROPERTIES/FLYERS/PAYMENT_SNAPSHOTS live,
+-- on every request, reasoning that a website's own editable surface (just
+-- `theme` at the time) was small enough that "always show current data" was
+-- an acceptable simplification for a v1.
+--
+-- Robert's explicit correction: he wants standard CMS-style draft/publish
+-- separation (WordPress/Webflow/Squarespace model). Editing the PROPERTY
+-- (or its flyer, or its Payment Snapshot) after the website is published
+-- must NOT silently change what a visitor sees. The public page must render
+-- a PUBLISHED SNAPSHOT — captured at the moment the Realtor clicks "Publish
+-- Website" / "Publish Changes" — not a live query. Further edits after that
+-- point are drafts only, visible in the wizard's own preview, until
+-- explicitly republished.
+--
+-- This column is the entire mechanism: a jsonb blob holding the exact,
+-- self-contained `WebsitePublishedSnapshot` (see `src/lib/website/types.ts`)
+-- assembled at publish time — the subject property's display fields, its
+-- most-recently-updated flyer copy, its most-recently-updated Payment
+-- Snapshot inputs, and the chosen theme. `src/lib/website/loadPublicWebsite.ts`
+-- now reads ONLY this column (via the same slug + lifecycle_state
+-- reachability gate as before) and no longer joins `properties` / `photos` /
+-- `flyers` / `payment_snapshots` at request time at all.
+--
+-- Nullable: a record that has never been published (`lifecycle_state` still
+-- `draft`/`generated`) has no snapshot yet, which is expected — the
+-- reachability gate already keeps such a row from ever being served
+-- publicly regardless.
+alter table websites add column if not exists published_snapshot jsonb;
+
+comment on column websites.published_snapshot is 'Self-contained, frozen copy of everything the public site needs (property fields, flyer copy, payment snapshot inputs, theme), captured at the moment of the last Publish/Publish Changes click. The public /site/[slug] page reads ONLY this column (never live property/flyer/payment_snapshot tables) so that editing a property after publishing never silently changes what is publicly visible — see src/lib/website/loadPublicWebsite.ts and WebsiteGeneratorWizard.tsx''s handlePublish. Null until the first Publish.';

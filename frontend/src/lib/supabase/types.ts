@@ -60,6 +60,18 @@ export interface PhotoRow {
 export type MarketingAssetType = "flyer" | "social_post" | "website" | "payment_snapshot";
 export type MarketingAssetStatus = "draft" | "final";
 
+/**
+ * The shared asset lifecycle model (`marketing_assets.lifecycle_state`,
+ * added in `0004_add_websites.sql`): Draft -> Generated -> Edited ->
+ * Published -> Archived. Intended to eventually replace the informal
+ * `status` ('draft' | 'final') column above for every asset type, but for
+ * now only the Website Generator (`src/lib/website/*`) reads/writes it —
+ * Flyer and Payment Snapshot deliberately keep using `status` unmigrated.
+ * See `src/lib/website/lifecycle.ts` for the transition helpers built on
+ * top of this union.
+ */
+export type AssetLifecycleState = "draft" | "generated" | "edited" | "published" | "archived";
+
 export interface MarketingAssetRow {
   id: string;
   property_id: string;
@@ -67,6 +79,14 @@ export interface MarketingAssetRow {
   title: string | null;
   thumbnail_url: string | null;
   status: MarketingAssetStatus;
+  /** See `AssetLifecycleState`'s doc comment above. NOT NULL, defaults to 'draft' at the database level. */
+  lifecycle_state: AssetLifecycleState;
+  /** Set once, the first time this asset transitions to `lifecycle_state = 'published'`. Never cleared on unpublish/archive. See `0004_add_websites.sql`'s "unified asset model" section. */
+  published_at: string | null;
+  /** Parent-row version counter (Robert's unified asset model) — additive alongside, NOT a replacement for, `flyers.version` / `payment_snapshots.version` on the child tables. See `0004_add_websites.sql`. */
+  version: number;
+  /** True when this asset may be out of date relative to its property. Set via `markAssetsStale` in `src/lib/assets/asset-lifecycle-service.ts` — nothing wires it up automatically yet. */
+  is_stale: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -127,6 +147,26 @@ export interface PaymentSnapshotRow {
   updated_at: string;
 }
 
+/**
+ * Shape of `websites.theme` — kept as a plain string union here (not
+ * imported from `src/lib/website/types.ts`) for the same "avoid a
+ * dependency cycle between the generic Supabase row layer and the
+ * feature-specific module" reason documented on `PaymentSnapshotInputs`
+ * above. `src/lib/website/supabase-store.ts` casts to the concrete
+ * `WebsiteTheme` type at its boundary.
+ */
+export interface WebsiteRow {
+  id: string;
+  marketing_asset_id: string;
+  property_id: string;
+  slug: string;
+  theme: string;
+  is_published: boolean;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // ---------------------------------------------------------------------------
 // App-facing types (camelCase)
 // ---------------------------------------------------------------------------
@@ -148,6 +188,10 @@ export interface MarketingAsset {
   title: string | null;
   thumbnailUrl: string | null;
   status: MarketingAssetStatus;
+  lifecycleState: AssetLifecycleState;
+  publishedAt: string | null;
+  version: number;
+  isStale: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -173,6 +217,18 @@ export interface PaymentSnapshot {
   inputs: PaymentSnapshotInputs;
   results: PaymentSnapshotResultsJson | null;
   pdfUrl: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Website {
+  id: string;
+  marketingAssetId: string;
+  propertyId: string;
+  slug: string;
+  theme: string;
+  isPublished: boolean;
   version: number;
   createdAt: string;
   updatedAt: string;
@@ -232,6 +288,10 @@ export function mapMarketingAssetRow(row: MarketingAssetRow): MarketingAsset {
     title: row.title,
     thumbnailUrl: row.thumbnail_url,
     status: row.status,
+    lifecycleState: row.lifecycle_state,
+    publishedAt: row.published_at,
+    version: row.version,
+    isStale: row.is_stale,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -261,6 +321,20 @@ export function mapPaymentSnapshotRow(row: PaymentSnapshotRow): PaymentSnapshot 
     inputs: row.inputs ?? {},
     results: row.results,
     pdfUrl: row.pdf_url,
+    version: row.version,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapWebsiteRow(row: WebsiteRow): Website {
+  return {
+    id: row.id,
+    marketingAssetId: row.marketing_asset_id,
+    propertyId: row.property_id,
+    slug: row.slug,
+    theme: row.theme,
+    isPublished: row.is_published,
     version: row.version,
     createdAt: row.created_at,
     updatedAt: row.updated_at,

@@ -7,11 +7,13 @@ import { Logo } from "@/components/Logo";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { currentUser } from "@/lib/mock-data";
-import { getGreeting } from "@/lib/utils";
+import { getGreeting, getInitials } from "@/lib/utils";
 
 interface MobileHeaderProps {
   name: string;
   subtitle: string;
+  /** Real signed-in user's avatar, when there is one. Falls back to the mock avatar. */
+  avatarUrl?: string;
 }
 
 /**
@@ -19,7 +21,7 @@ interface MobileHeaderProps {
  * toggle, avatar, greeting. The AI command bar hero renders separately,
  * directly below this header, so it stays prominent on mobile too.
  */
-export function MobileHeader({ name, subtitle }: MobileHeaderProps) {
+export function MobileHeader({ name, subtitle, avatarUrl }: MobileHeaderProps) {
   const [greeting, setGreeting] = React.useState("Good morning");
 
   React.useEffect(() => {
@@ -34,8 +36,8 @@ export function MobileHeader({ name, subtitle }: MobileHeaderProps) {
           <NotificationBell />
           <ThemeToggle />
           <Avatar className="h-9 w-9">
-            <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
-            <AvatarFallback>RC</AvatarFallback>
+            <AvatarImage src={avatarUrl || currentUser.avatarUrl} alt={name} />
+            <AvatarFallback>{getInitials(name)}</AvatarFallback>
           </Avatar>
         </div>
       </div>

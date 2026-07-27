@@ -6,6 +6,7 @@ import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/layout/NavLink";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { dashboardNavItem, navSections } from "@/lib/mock-data";
+import type { AuthUserSummary } from "@/lib/supabase/session";
 
 /**
  * Routes that already have a real page behind them. Sidebar items outside
@@ -14,8 +15,12 @@ import { dashboardNavItem, navSections } from "@/lib/mock-data";
  */
 const LIVE_ROUTES = new Set<string>([dashboardNavItem.href, "/ai-command-center"]);
 
+interface SidebarProps {
+  user?: AuthUserSummary | null;
+}
+
 /** Fixed, full-height desktop sidebar. Hidden below the `lg` breakpoint. */
-export function Sidebar() {
+export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -58,7 +63,7 @@ export function Sidebar() {
       </nav>
 
       <div className="pt-4">
-        <UserMenu />
+        <UserMenu user={user} />
       </div>
     </aside>
   );

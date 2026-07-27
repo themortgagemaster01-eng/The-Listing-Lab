@@ -23,10 +23,9 @@ import { Badge } from "@/components/ui/badge";
  * planning, not literally spelled out on this page; the page itself only
  * needs to sell stage 2.
  *
- * "Get Started Free" currently routes to `/login` — there is no real
- * sign-up flow yet (queued next, right after this page). Update this link
- * to `/signup` once that route exists; do not leave it pointed at `/login`
- * once sign-up is real, since that would silently skip account creation.
+ * "Get Started Free" routes to `/signup` (real account creation — see
+ * `components/auth/SignupForm.tsx`); "Sign In" in the header routes to
+ * `/login`.
  *
  * "Listing Marketing Hub" below is marketing-facing copy ONLY — the actual
  * internal/technical name for this concept stays "Property Workspace" in
@@ -101,7 +100,7 @@ export default function LandingPage() {
 
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button asChild variant="gold" size="lg">
-                <Link href="/login">
+                <Link href="/signup">
                   Get Started Free
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -176,7 +175,7 @@ export default function LandingPage() {
                 and social posts, all in one place.
               </p>
               <Button asChild variant="gold" size="lg" className="mt-8">
-                <Link href="/login">
+                <Link href="/signup">
                   Get Started Free
                   <ArrowRight className="h-4 w-4" />
                 </Link>

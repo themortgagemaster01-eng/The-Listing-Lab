@@ -163,6 +163,15 @@ export interface WebsiteRow {
   theme: string;
   is_published: boolean;
   version: number;
+  /**
+   * Frozen `WebsitePublishedSnapshot` (see `src/lib/website/types.ts`),
+   * captured at the moment of the last Publish/Publish Changes click. Kept
+   * as `unknown` at this generic row layer for the same "avoid a dependency
+   * cycle" reason as `theme` above — `src/lib/website/supabase-store.ts`
+   * casts it to the concrete type at its boundary. Null until first
+   * publish. See `0005_add_website_published_snapshot.sql`.
+   */
+  published_snapshot: unknown | null;
   created_at: string;
   updated_at: string;
 }
@@ -230,6 +239,8 @@ export interface Website {
   theme: string;
   isPublished: boolean;
   version: number;
+  /** See `WebsiteRow.published_snapshot`'s doc comment above. */
+  publishedSnapshot: unknown | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -336,6 +347,7 @@ export function mapWebsiteRow(row: WebsiteRow): Website {
     theme: row.theme,
     isPublished: row.is_published,
     version: row.version,
+    publishedSnapshot: row.published_snapshot,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

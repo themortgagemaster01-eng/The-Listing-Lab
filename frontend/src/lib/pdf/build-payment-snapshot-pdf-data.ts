@@ -3,6 +3,7 @@ import type { PropertyFormData } from "@/lib/flyer/types";
 import { formatCurrency, parseNumberField } from "@/lib/flyer/mappers";
 import { PAYMENT_SNAPSHOT_DISCLAIMER, type PaymentSnapshotResults } from "@/lib/payment/types";
 import { buildAgentContactQrUrl, generateQrCodeDataUrl } from "@/lib/pdf/qrcode";
+import type { BrandProfileFormData } from "@/lib/brand/types";
 
 /**
  * Assembles the flat `PaymentSnapshotPdfData` shape `PaymentSnapshotPdfDocument`
@@ -14,8 +15,9 @@ export async function buildPaymentSnapshotPdfData(params: {
   property: PropertyFormData;
   heroPhotoUrl: string | null;
   results: PaymentSnapshotResults;
+  brandProfile?: BrandProfileFormData;
 }): Promise<PaymentSnapshotPdfData> {
-  const { property, heroPhotoUrl, results } = params;
+  const { property, heroPhotoUrl, results, brandProfile } = params;
 
   // Per the "no fake data presented as real" constraint, the QR code only
   // ever encodes a real value: the agent's real application URL, or a
@@ -41,6 +43,8 @@ export async function buildPaymentSnapshotPdfData(params: {
     agentPhone: property.agentPhone,
     agentPhotoUrl: property.agentPhotoUrl || null,
     qrDataUrl,
+    nmlsNumber: brandProfile?.nmlsNumber || null,
+    mortgageCompany: brandProfile?.mortgageCompany || null,
     disclaimer: `${PAYMENT_SNAPSHOT_DISCLAIMER} Contact ${property.agentName || "your agent"} for an accurate, personalized quote.`,
     preparedDate: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
   };

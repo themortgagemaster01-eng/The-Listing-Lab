@@ -1,5 +1,6 @@
 import type { PropertyFormData } from "@/lib/flyer/types";
 import type { PaymentSnapshotResults } from "@/lib/payment/types";
+import type { BrandProfileFormData } from "@/lib/brand/types";
 
 /**
  * Client-side PDF export path for the Payment Snapshot feature — mirrors
@@ -21,6 +22,7 @@ export async function generatePaymentSnapshotPdfBlob(params: {
   property: PropertyFormData;
   heroPhotoUrl: string | null;
   results: PaymentSnapshotResults;
+  brandProfile?: BrandProfileFormData;
 }): Promise<Blob> {
   const [{ pdf }, { PaymentSnapshotPdfDocument }, { buildPaymentSnapshotPdfData }] = await Promise.all([
     import("@react-pdf/renderer"),

@@ -61,6 +61,9 @@ export interface PaymentSnapshotPdfData {
   agentPhone: string;
   agentPhotoUrl: string | null;
   qrDataUrl: string | null;
+  /** From the account-level Brand Center "Mortgage (optional)" section — omitted from the footer entirely when not set, never shown as a blank/placeholder value. */
+  nmlsNumber: string | null;
+  mortgageCompany: string | null;
   disclaimer: string;
   preparedDate: string;
 }
@@ -77,6 +80,13 @@ function AgentAndQr({ data }: { data: PaymentSnapshotPdfData }) {
           <Text style={styles.agentName}>{data.agentName || "Listing Agent"}</Text>
           {data.agentPhone ? <Text style={styles.agentContact}>{data.agentPhone}</Text> : null}
           {data.agentEmail ? <Text style={styles.agentContact}>{data.agentEmail}</Text> : null}
+          {(data.nmlsNumber || data.mortgageCompany) && (
+            <Text style={styles.agentContact}>
+              {data.mortgageCompany}
+              {data.mortgageCompany && data.nmlsNumber ? " · " : ""}
+              {data.nmlsNumber ? `NMLS #${data.nmlsNumber}` : ""}
+            </Text>
+          )}
         </View>
       </View>
       {data.qrDataUrl ? (

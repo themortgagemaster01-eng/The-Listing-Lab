@@ -1,12 +1,16 @@
 import { parseNumberField } from "@/lib/flyer/mappers";
 import {
   LOAN_PROGRAM_LABELS,
+  emptySonymaEligibilityInput,
   type ClosingCostLineItem,
   type LoanProgram,
   type LoanProgramResult,
   type PaymentFormData,
   type PaymentSnapshotResults,
+  type SonymaEligibilityInput,
 } from "@/lib/payment/types";
+
+const eligibilityCurrency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
 /**
  * Pure calculation functions for the Payment Snapshot feature. Every
@@ -98,6 +102,55 @@ interface ProgramMathParams {
   annualPropertyTax: number;
   annualHomeInsurance: number;
   monthlyHoa: number;
+  /** Only consulted when `program === "sonyma"`. See `evaluateSonymaEligibility` below. */
+  sonymaEligibility?: SonymaEligibilityInput;
+}
+
+/**
+ * Compares user-entered household income/purchase price against
+ * user-entered county limits to produce a real (if manually-sourced)
+ * eligibility read, rather than the flat "not modeled" placeholder this
+ * program used to carry. Deliberately does NOT hardcode SONYMA's actual
+ * county-by-county limit tables — those are set by NY Homes and Community
+ * Renewal, vary by county/household size/target-area status, and are
+ * updated periodically, so baking a snapshot of them into this app risks
+ * presenting stale or wrong figures as real. The Realtor instead looks up
+ * their buyer's county at hcr.ny.gov/income-limits and enters it directly.
+ */
+function evaluateSonymaEligibility(input: SonymaEligibilityInput | undefined, purchasePrice: number): string[] {
+  const elig = input ?? emptySonymaEligibilityInput();
+  const notes: string[] = [];
+
+  const annualIncome = safeNumber(parseNumberField(elig.annualIncome));
+  const countyIncomeLimit = safeNumber(parseNumberField(elig.countyIncomeLimit));
+  const countyPurchasePriceLimit = safeNumber(parseNumberField(elig.countyPurchasePriceLimit));
+
+  if (countyIncomeLimit <= 0 && countyPurchasePriceLimit <= 0) {
+    notes.push(
+      "Enter household income and your county's SONYMA income/purchase-price limits below to check eligibility — current limits are published at hcr.ny.gov/income-limits."
+    );
+  } else {
+    if (!elig.isEligibleBuyerType) {
+      notes.push("SONYMA generally requires being a first-time homebuyer or purchasing in a designated target area — confirm buyer status before relying on this estimate.");
+    }
+    if (countyIncomeLimit > 0) {
+      notes.push(
+        annualIncome <= countyIncomeLimit
+          ? `Household income is within the county limit entered (${eligibilityCurrency.format(countyIncomeLimit)}).`
+          : `Household income appears to exceed the county limit entered (${eligibilityCurrency.format(countyIncomeLimit)}) — likely NOT eligible on income.`
+      );
+    }
+    if (countyPurchasePriceLimit > 0) {
+      notes.push(
+        purchasePrice <= countyPurchasePriceLimit
+          ? `Purchase price is within the county limit entered (${eligibilityCurrency.format(countyPurchasePriceLimit)}).`
+          : `Purchase price exceeds the county limit entered (${eligibilityCurrency.format(countyPurchasePriceLimit)}) — likely NOT eligible on price.`
+      );
+    }
+  }
+
+  notes.push("SONYMA's actual rates, terms, and subsidies are set by the state and not modeled here — this compares base mortgage math only. Confirm real terms with a SONYMA-approved lender.");
+  return notes;
 }
 
 /**
@@ -134,9 +187,7 @@ export function calculateProgramResult(program: LoanProgram, params: ProgramMath
       notes.push("VA loans typically require no down payment for eligible borrowers.");
       break;
     case "sonyma":
-      notes.push(
-        "SONYMA has its own income limits, purchase price limits, and often-subsidized rates not modeled here — this is a placeholder comparison row, not a real SONYMA calculator."
-      );
+      notes.push(...evaluateSonymaEligibility(params.sonymaEligibility, purchasePrice));
       break;
     case "homestyle":
       notes.push("Shown as base mortgage math only — add renovation costs manually; this does not model a separate renovation-cost line.");
@@ -236,6 +287,7 @@ export function buildPaymentSnapshotResults(form: PaymentFormData): PaymentSnaps
       annualPropertyTax,
       annualHomeInsurance,
       monthlyHoa,
+      sonymaEligibility: form.sonymaEligibility,
     })
   );
 

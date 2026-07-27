@@ -29,8 +29,37 @@ export const LOAN_PROGRAM_DESCRIPTIONS: Record<LoanProgram, string> = {
   fha: "3.5% minimum down payment. Includes upfront + annual mortgage insurance premium (MIP).",
   va: "For eligible veterans/service members. No PMI; includes a one-time VA funding fee.",
   homestyle: "Conventional-equivalent renovation loan. Base mortgage math shown; add renovation costs manually.",
-  sonyma: "NY State of New York Mortgage Agency. Placeholder comparison row only — see disclaimer.",
+  sonyma: "NY State down-payment assistance for eligible buyers. Enter your county's limits below to check eligibility.",
 };
+
+/**
+ * SONYMA eligibility depends on real, county-by-county income and purchase-
+ * price limit tables (published/updated by NY Homes and Community Renewal)
+ * that are too granular and too likely to go stale to hardcode responsibly
+ * into this app. Instead of a real lookup table, the Realtor enters their
+ * buyer's numbers AND the current limits for their county (looked up at
+ * hcr.ny.gov/income-limits), and `evaluateSonymaEligibility` in
+ * `calculations.ts` compares them — a real eligibility check, just backed by
+ * user-entered rather than baked-in figures.
+ */
+export interface SonymaEligibilityInput {
+  /** SONYMA generally requires being a first-time homebuyer OR purchasing in a designated target area. */
+  isEligibleBuyerType: boolean;
+  householdSize: "1-2" | "3+";
+  annualIncome: string;
+  countyIncomeLimit: string;
+  countyPurchasePriceLimit: string;
+}
+
+export function emptySonymaEligibilityInput(): SonymaEligibilityInput {
+  return {
+    isEligibleBuyerType: false,
+    householdSize: "1-2",
+    annualIncome: "",
+    countyIncomeLimit: "",
+    countyPurchasePriceLimit: "",
+  };
+}
 
 /** Per-program user-editable settings — every selected program gets its own rate. */
 export interface LoanProgramInput {
@@ -53,6 +82,8 @@ export interface PaymentFormData {
   hoaMonthly: string;
   loanTermYears: string;
   programs: LoanProgramInputMap;
+  /** Optional — absent on snapshots saved before this field existed; always fall back to `emptySonymaEligibilityInput()` when reading. */
+  sonymaEligibility?: SonymaEligibilityInput;
 }
 
 export function defaultLoanProgramInputMap(defaultRate = "6.5"): LoanProgramInputMap {
@@ -75,6 +106,7 @@ export function emptyPaymentForm(seed?: Partial<PaymentFormData>): PaymentFormDa
     hoaMonthly: "",
     loanTermYears: "30",
     programs: defaultLoanProgramInputMap(),
+    sonymaEligibility: emptySonymaEligibilityInput(),
     ...seed,
   };
 }

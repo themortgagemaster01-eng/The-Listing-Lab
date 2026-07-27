@@ -1,6 +1,6 @@
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { mapWebsiteRow, type AssetLifecycleState, type WebsiteRow } from "@/lib/supabase/types";
-import type { WebsiteRecord, WebsiteTheme } from "@/lib/website/types";
+import type { WebsitePublishedSnapshot, WebsiteRecord, WebsiteTheme } from "@/lib/website/types";
 import { isReachable } from "@/lib/website/lifecycle";
 
 /**
@@ -41,6 +41,11 @@ function toWebsiteRecord(row: MarketingAssetWithWebsite): WebsiteRecord | null {
     slug: website.slug,
     theme: (website.theme as WebsiteTheme) || "estate",
     lifecycleState: row.lifecycle_state,
+    // Cast at this boundary, same convention as `theme` above — the generic
+    // Supabase row layer (`src/lib/supabase/types.ts`) deliberately keeps
+    // this as `unknown` to avoid a dependency cycle with this feature-
+    // specific module. `null` until the first Publish.
+    publishedSnapshot: (website.publishedSnapshot as WebsitePublishedSnapshot | null) ?? null,
     version: website.version,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -113,6 +118,13 @@ export async function saveWebsiteSupabase(record: WebsiteRecord): Promise<void> 
       // column comment in supabase/migrations/0004_add_websites.sql).
       is_published: isPublished,
       version: record.version,
+      // The draft/publish separation's actual content — see
+      // `WebsitePublishedSnapshot`'s doc comment in `src/lib/website/types.ts`.
+      // Written ONLY by `WebsiteGeneratorWizard.tsx`'s publish/publish-changes
+      // handler; every other write path (autosave of a draft theme change)
+      // passes through the record's EXISTING `publishedSnapshot` unchanged so
+      // a draft-only save can never alter what's publicly visible.
+      published_snapshot: record.publishedSnapshot,
     },
     { onConflict: "id" }
   );

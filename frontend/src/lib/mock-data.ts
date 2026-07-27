@@ -22,6 +22,7 @@ import {
   PartyPopper,
   ArrowUpRight,
   Globe,
+  BadgeCheck,
 } from "lucide-react";
 import type {
   NavSection,
@@ -64,6 +65,12 @@ export const navSections: NavSection[] = [
   {
     label: "Account",
     items: [
+      // Persistent, account-level setup step — deliberately NOT part of the
+      // "Property Labs" toolbox section above (or the future 3-category
+      // Marketing / Mortgage & Buyer Tools / Business Growth nav), since
+      // it's a one-time profile every asset reads from, not a generator
+      // tool in its own right. See `components/brand/BrandCenterForm.tsx`.
+      { label: "Brand Center", href: "/brand-center", icon: BadgeCheck },
       { label: "Profile", href: "/dashboard/profile", icon: User },
       { label: "Settings", href: "/dashboard/settings", icon: Settings },
       { label: "Billing", href: "/dashboard/billing", icon: Wallet },

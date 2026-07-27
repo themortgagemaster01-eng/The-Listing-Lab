@@ -146,11 +146,21 @@ export function LoginForm() {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <ComingSoonButton variant="outline" size="lg" message="Google sign-in is coming soon.">
-          Google
+        <ComingSoonButton
+          variant="outline"
+          size="lg"
+          message="Google sign-in is coming soon."
+          className="flex-col gap-0.5 whitespace-normal py-2 text-xs opacity-60 grayscale hover:opacity-70 sm:flex-row sm:gap-2 sm:text-sm"
+        >
+          Google Sign-In <span className="font-normal text-muted-foreground">(Coming Soon)</span>
         </ComingSoonButton>
-        <ComingSoonButton variant="outline" size="lg" message="Apple sign-in is coming soon.">
-          Apple
+        <ComingSoonButton
+          variant="outline"
+          size="lg"
+          message="Apple sign-in is coming soon."
+          className="flex-col gap-0.5 whitespace-normal py-2 text-xs opacity-60 grayscale hover:opacity-70 sm:flex-row sm:gap-2 sm:text-sm"
+        >
+          Apple Sign-In <span className="font-normal text-muted-foreground">(Coming Soon)</span>
         </ComingSoonButton>
       </div>
 

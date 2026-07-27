@@ -4,8 +4,8 @@ import { Document, Page, View, Text, Image, StyleSheet, Font } from "@react-pdf/
 import type { FlyerTemplate, FlyerTextContent } from "@/lib/supabase/types";
 
 /**
- * The three flyer PDF layouts, one per `FlyerTemplate`, mirroring the
- * on-screen previews in `components/property/flyer/FlyerTemplatePreviews.tsx`
+ * The four flyer PDF layouts, one per `FlyerTemplate`, mirroring the
+ * on-screen previews in `components/property/flyer/FlyerLivePreview.tsx`
  * as closely as `@react-pdf/renderer`'s primitives reasonably allow.
  *
  * FONT NOTE: this intentionally uses react-pdf's built-in core fonts
@@ -364,11 +364,91 @@ function ClassicPage({ data }: { data: FlyerPdfData }) {
   );
 }
 
+// ---------------------------------------------------------------------------
+// Minimal — whitespace-forward, understated thin-rule accents, no color blocks
+// ---------------------------------------------------------------------------
+
+function MinimalPage({ data }: { data: FlyerPdfData }) {
+  const hero = data.photos[0];
+  const gallery = data.photos.slice(1, 4);
+  return (
+    <Page size="LETTER" style={[styles.page, { padding: 40 }]}>
+      <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 16 }}>
+        <View style={{ width: 28, height: 1, backgroundColor: GOLD_500, marginRight: 8 }} />
+        <Text style={{ fontSize: 8, letterSpacing: 3, color: GOLD_600, fontFamily: "Helvetica-Bold" }}>
+          NEW LISTING
+        </Text>
+      </View>
+
+      <Text style={{ fontSize: 26, fontFamily: "Helvetica", color: NAVY_950, lineHeight: 1.15, marginBottom: 6 }}>
+        {data.text.headline}
+      </Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 16 }}>
+        <Text style={{ fontSize: 10, color: INK_MUTED }}>
+          {data.address}{data.cityStateZip ? `, ${data.cityStateZip}` : ""}
+          {data.statsLine ? `   ·   ${data.statsLine}` : ""}
+        </Text>
+        {data.priceLabel ? (
+          <Text style={{ fontSize: 15, fontFamily: "Helvetica-Bold", color: NAVY_950 }}>{data.priceLabel}</Text>
+        ) : null}
+      </View>
+
+      {hero ? <Image src={hero} style={{ width: "100%", height: 230, objectFit: "cover" }} /> : null}
+      {gallery.length > 0 ? (
+        <View style={{ flexDirection: "row", gap: 4, marginTop: 4 }}>
+          {gallery.map((src, i) => (
+            <Image key={i} src={src} style={{ flex: 1, height: 70, objectFit: "cover" }} />
+          ))}
+        </View>
+      ) : null}
+
+      <View style={{ flexDirection: "row", gap: 28, marginTop: 20 }}>
+        <View style={{ flex: 1.3 }}>
+          <Text style={{ fontSize: 10, lineHeight: 1.65, color: NAVY_900, marginBottom: 12 }}>
+            {data.text.description}
+          </Text>
+          <FeatureBullets bullets={data.text.featureBullets} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <View style={{ borderWidth: 1, borderColor: "#e6d3a3", padding: 14 }}>
+            <Text style={{ fontSize: 8, fontFamily: "Helvetica-Bold", color: GOLD_600, letterSpacing: 1, marginBottom: 6 }}>
+              THE NEIGHBORHOOD
+            </Text>
+            <Text style={{ fontSize: 9, lineHeight: 1.55, color: INK_MUTED, marginBottom: 10 }}>
+              {data.text.neighborhoodHighlights}
+            </Text>
+            <View style={{ height: 1, backgroundColor: "#e6d3a3", marginBottom: 10 }} />
+            <Text style={{ fontSize: 10, fontFamily: "Helvetica-Bold", color: NAVY_950 }}>{data.text.callToAction}</Text>
+            <Text style={{ fontSize: 7.5, color: INK_MUTED, marginTop: 4 }}>
+              MLS# {data.mlsNumber || "—"} · {data.propertyType || "Residential"}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View
+        style={{
+          position: "absolute",
+          bottom: 32,
+          left: 40,
+          right: 40,
+          borderTopWidth: 1,
+          borderColor: "#e7e5e0",
+          paddingTop: 12,
+        }}
+      >
+        <AgentAndQr data={data} />
+      </View>
+    </Page>
+  );
+}
+
 export function FlyerPdfDocument({ data }: { data: FlyerPdfData }) {
   return (
     <Document title={`${data.address} — Flyer`} author={data.agentName || "The Listing Lab"}>
       {data.template === "luxury" && <LuxuryPage data={data} />}
       {data.template === "modern" && <ModernPage data={data} />}
+      {data.template === "minimal" && <MinimalPage data={data} />}
       {(data.template === "classic" || !data.template) && <ClassicPage data={data} />}
     </Document>
   );

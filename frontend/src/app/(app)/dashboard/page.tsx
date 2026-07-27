@@ -10,6 +10,7 @@ import { UpcomingPanel } from "@/components/dashboard/UpcomingPanel";
 import { QuickActionsGrid } from "@/components/dashboard/QuickActionsGrid";
 import { ActivityFeed } from "@/components/shared/ActivityFeed";
 import { currentUser, recentActivity } from "@/lib/mock-data";
+import { getAuthUser } from "@/lib/supabase/session";
 
 export const metadata: Metadata = {
   title: "Dashboard | Listing Lab",
@@ -17,13 +18,19 @@ export const metadata: Metadata = {
 
 const SUBTITLE = "Here's what's happening with your Property Labs today.";
 
-export default function DashboardPage() {
-  const firstName = currentUser.name.split(" ")[0];
+export default async function DashboardPage() {
+  // Real signed-in user when Supabase auth is configured (see
+  // `src/lib/supabase/session.ts`); falls back to the mock account
+  // otherwise — `(app)/layout.tsx` already redirected to `/login` in the
+  // "configured but signed out" case, so reaching this line with `user ===
+  // null` only happens in the unconfigured/local-dev case.
+  const user = await getAuthUser();
+  const firstName = (user?.name ?? currentUser.name).split(" ")[0];
 
   return (
     <div className="animate-fade-slide-in space-y-8">
-      <TopNavigation name={firstName} subtitle={SUBTITLE} />
-      <MobileHeader name={firstName} subtitle={SUBTITLE} />
+      <TopNavigation name={firstName} subtitle={SUBTITLE} avatarUrl={user?.avatarUrl} />
+      <MobileHeader name={firstName} subtitle={SUBTITLE} avatarUrl={user?.avatarUrl} />
 
       {/* AI command hero: the visual centerpiece of the dashboard. */}
       <SearchCommandBar />

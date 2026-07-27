@@ -21,7 +21,8 @@ import * as websitePersistence from "@/lib/website/persistence";
 import { buildWebsiteSlug } from "@/lib/website/slug";
 import { buildWebsitePublicUrl } from "@/lib/website/url";
 import { WEBSITE_THEME_DESCRIPTIONS, WEBSITE_THEME_LABELS, type WebsiteRecord, type WebsiteTheme } from "@/lib/website/types";
-import { describeLifecycle, everPublished, isReachable, markFieldEdited, publish, publishButtonLabel, unpublish } from "@/lib/website/lifecycle";
+import { describeLifecycle, everPublished, isReachable, publish, publishButtonLabel, syncLifecycleWithDrift, unpublish } from "@/lib/website/lifecycle";
+import { buildSnapshotFromPreview, snapshotsEqual } from "@/lib/website/snapshot";
 import type { PublicWebsiteData } from "@/lib/website/loadPublicWebsite";
 import { generateQrCodeDataUrl } from "@/lib/pdf/qrcode";
 import { downloadBlob } from "@/lib/pdf/generateFlyerPdfBlob";
@@ -63,6 +64,7 @@ function createDraftWebsite(propertyId: string, form: PropertyFormData): Website
     slug: buildWebsiteSlug(form.address, form.cityStateZip, propertyId),
     theme: "estate",
     lifecycleState: "generated",
+    publishedSnapshot: null,
     version: 1,
     createdAt: now,
     updatedAt: now,
@@ -196,12 +198,40 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
     };
   }, [propertyId, propertyForm, photos, property.status, property.assetCount, property.imageUrl, website?.slug, website?.theme, flyerText, latestSnapshot]);
 
+  // Draft/publish separation: whether the wizard's current live-assembled
+  // data (this property's fields, its most-recent flyer/Payment Snapshot,
+  // and the selected theme) differs from what was actually last published
+  // — see `WebsitePublishedSnapshot`'s doc comment in
+  // `src/lib/website/types.ts`. Deliberately NOT limited to "did the
+  // Realtor touch the theme picker in THIS wizard" — it also catches the
+  // property, flyer, or Payment Snapshot changing in a different tab after
+  // this website was published, which is exactly the silent-propagation
+  // risk Robert's draft/publish requirement is about. `false` before a
+  // first publish (nothing to compare against yet).
+  const hasPendingChanges = React.useMemo(() => {
+    if (!website || !everPublished(website.lifecycleState)) return false;
+    const candidate = buildSnapshotFromPreview(previewData);
+    return !snapshotsEqual(candidate, website.publishedSnapshot);
+  }, [website, previewData]);
+
+  // Keeps the persisted `lifecycleState` in sync with `hasPendingChanges`
+  // (published <-> edited only — see `syncLifecycleWithDrift`'s doc
+  // comment). This is purely a status signal for the wizard's own badge/
+  // button UI; it never affects what the public page shows (that's
+  // `publishedSnapshot`, untouched here) or whether it's reachable (both
+  // `published` and `edited` are reachable).
+  React.useEffect(() => {
+    setWebsite((prev) => {
+      if (!prev) return prev;
+      const next = syncLifecycleWithDrift(prev.lifecycleState, hasPendingChanges);
+      if (next === prev.lifecycleState) return prev;
+      return { ...prev, lifecycleState: next, updatedAt: new Date().toISOString() };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPendingChanges]);
+
   function selectTheme(theme: WebsiteTheme) {
-    setWebsite((prev) =>
-      prev
-        ? { ...prev, theme, lifecycleState: markFieldEdited(prev.lifecycleState), updatedAt: new Date().toISOString() }
-        : prev
-    );
+    setWebsite((prev) => (prev ? { ...prev, theme, updatedAt: new Date().toISOString() } : prev));
   }
 
   async function handlePublish() {
@@ -214,9 +244,18 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
       // is a genuine republish and should bump the version counter too,
       // even though `archived` isn't currently "reachable".
       const isRepublish = everPublished(website.lifecycleState);
+      // Draft/publish separation: THIS is the one place a new
+      // `publishedSnapshot` gets written — a fresh, self-contained copy of
+      // the wizard's current live-assembled data (`previewData`). Every
+      // other save path in this component (autosave of a theme change) must
+      // never touch `publishedSnapshot`, so nothing reaches the public site
+      // except through an explicit Publish/Publish Changes click. See
+      // `WebsitePublishedSnapshot`'s doc comment in `src/lib/website/types.ts`.
+      const snapshot = buildSnapshotFromPreview(previewData);
       const updated: WebsiteRecord = {
         ...website,
         lifecycleState: publish(website.lifecycleState),
+        publishedSnapshot: snapshot,
         // Bumped only on an actual republish (matches flyers'/payment
         // snapshots' "version" convention) — the very first publish keeps
         // version 1. This is the CHILD `websites.version` counter, kept as
@@ -227,11 +266,11 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
         updatedAt: new Date().toISOString(),
       };
       setWebsite(updated);
-      // Persist the child `websites` row (theme/slug/version/is_published)
-      // plus the localStorage fallback copy first, so the parent
-      // `marketing_assets` row is guaranteed to exist before the generic
-      // service below reads/updates it (matters on a very first publish
-      // that races ahead of the debounced autosave).
+      // Persist the child `websites` row (theme/slug/version/is_published/
+      // published_snapshot) plus the localStorage fallback copy first, so
+      // the parent `marketing_assets` row is guaranteed to exist before the
+      // generic service below reads/updates it (matters on a very first
+      // publish that races ahead of the debounced autosave).
       await websitePersistence.savePropertyWebsite(propertyId, updated);
       // The actual, authoritative lifecycle transition + `published_at`
       // stamp now goes through the shared, reusable lifecycle service
@@ -240,8 +279,8 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
       // function any other asset type can call once it adopts this model.
       // Best-effort: `saveWebsiteSupabase` above already wrote
       // `lifecycle_state` too (it has to, for record-creation and the
-      // field-edit-while-live autosave path — see that file's comments),
-      // so a failure here is logged, not fatal, and mainly costs the new
+      // draft-autosave-while-live path — see that file's comments), so a
+      // failure here is logged, not fatal, and mainly costs the new
       // `published_at` stamp rather than the publish itself.
       if (isSupabaseConfigured) {
         try {
@@ -250,10 +289,26 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
           console.error(`[Listing Lab] publishAsset failed for ${website.marketingAssetId}: ${describeSupabaseError(err)}`);
         }
       }
-      showToast(isRepublish ? "Live site updated." : "Your Listing Presentation Site is live.");
+      showToast(isRepublish ? "Changes published — the live site now shows your latest edits." : "Your Listing Presentation Site is live.");
     } finally {
       setPublishing(false);
     }
+  }
+
+  /**
+   * Explicitly persists the current draft (theme selection, plus whatever
+   * the wizard's live-assembled preview would show right now) WITHOUT
+   * touching `publishedSnapshot` — the live site, if any, remains exactly
+   * as it was. This is largely what the debounced autosave already does in
+   * the background; the explicit button exists because Robert specifically
+   * wants a visible, named "Save Draft" choice (not just silent autosave)
+   * once there's a pending change to acknowledge — see the `hasPendingChanges`
+   * branch in the render below.
+   */
+  async function handleSaveDraft() {
+    if (!website) return;
+    await websitePersistence.savePropertyWebsite(propertyId, website);
+    showToast("Draft saved — the live site is unchanged.");
   }
 
   async function handleUnpublish() {
@@ -371,9 +426,21 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
         </DashboardCard>
 
         <DashboardCard
-          title={reachable ? "Live Preview" : "Preview — not yet public"}
+          title={
+            !reachable
+              ? "Preview — not yet public"
+              : hasPendingChanges
+                ? "Preview — showing unpublished changes"
+                : "Live Preview"
+          }
           contentClassName="mt-4 flex flex-col gap-5"
         >
+          {reachable && hasPendingChanges && (
+            <p className="rounded-xl border border-dashed border-border bg-background px-4 py-3 text-xs text-muted-foreground">
+              This preview shows your draft. The live site visitors see still shows your last published version —
+              publish below to make these changes visible.
+            </p>
+          )}
           <WebsiteDevicePreview
             data={previewData}
             publicUrl={publicUrl}
@@ -424,17 +491,45 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
             </div>
           )}
 
-          <Button type="button" variant="gold" size="lg" onClick={handlePublish} disabled={publishing} className="w-full sm:w-auto sm:self-start">
-            <Sparkles className="h-4 w-4" />
-            {publishing ? "Publishing…" : publishButtonLabel(website.lifecycleState)}
-          </Button>
-          {!reachable && everPublished(website.lifecycleState) && (
+          {hasPendingChanges ? (
+            // Draft/publish separation's core UI moment: an explicit choice,
+            // never a silent auto-publish. "Save Draft" persists the current
+            // draft (theme, etc.) without touching what's live; "Publish
+            // Changes" writes a fresh `publishedSnapshot` from current data.
+            <div className="flex flex-col gap-3 rounded-2xl border border-gold-300 bg-gold-50 p-4 dark:border-gold-500/40 dark:bg-gold-500/10 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-2 text-sm text-navy-900 dark:text-gold-200">
+                <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>
+                  You have unpublished changes —{" "}
+                  {reachable ? "the live site still shows your last published version." : "publish to make this site live."}
+                </span>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={handleSaveDraft} disabled={publishing}>
+                  Save Draft
+                </Button>
+                <Button type="button" variant="gold" size="sm" onClick={handlePublish} disabled={publishing}>
+                  <Sparkles className="h-4 w-4" />
+                  {publishing ? "Publishing…" : "Publish Changes"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            !reachable && (
+              <Button type="button" variant="gold" size="lg" onClick={handlePublish} disabled={publishing} className="w-full sm:w-auto sm:self-start">
+                <Sparkles className="h-4 w-4" />
+                {publishing ? "Publishing…" : publishButtonLabel(website.lifecycleState)}
+              </Button>
+            )
+          )}
+          {!hasPendingChanges && !reachable && everPublished(website.lifecycleState) && (
             <p className="text-xs text-muted-foreground">
               This site was previously live. Republishing updates the same URL — nothing to re-enter.
             </p>
-          )}
-        </DashboardCard>
-      </div>
+            )
+        )}
+      </DashboardCard>
     </div>
+  </div>
   );
 }

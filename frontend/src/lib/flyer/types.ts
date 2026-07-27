@@ -1,7 +1,7 @@
 import type { FlyerTemplate, FlyerTextContent } from "@/lib/supabase/types";
 
 /**
- * Client-facing types for the AI Flyer Generator
+ * Client-facing types for Flyer Studio
  * (`components/property/flyer/*`). These sit "above" the raw Supabase row
  * types in `src/lib/supabase/types.ts` — the persistence layer
  * (`src/lib/flyer/persistence.ts`) is responsible for mapping between the
@@ -122,4 +122,5 @@ export const FLYER_TEMPLATES: { id: FlyerTemplate; name: string; description: st
   { id: "luxury", name: "Luxury", description: "Full-bleed hero photo, editorial serif type" },
   { id: "modern", name: "Modern", description: "Photo grid, bold sans-serif, dense layout" },
   { id: "classic", name: "Classic", description: "Single large photo, traditional serif layout" },
+  { id: "minimal", name: "Minimal", description: "Whitespace-forward layout, understated accents" },
 ];

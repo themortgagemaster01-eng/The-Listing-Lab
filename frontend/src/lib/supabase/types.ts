@@ -176,6 +176,40 @@ export interface WebsiteRow {
   updated_at: string;
 }
 
+/**
+ * One row per Supabase auth user — see `0006_add_brand_profiles.sql` for the
+ * full field-group breakdown (Professional Identity / Contact /
+ * Mortgage-optional / Social). Unlike every other row type in this file,
+ * `brand_profiles` isn't scoped by `property_id` — it's an account-level
+ * profile, looked up by `user_id`.
+ */
+export interface BrandProfileRow {
+  id: string;
+  user_id: string;
+  headshot_url: string | null;
+  logo_url: string | null;
+  signature_url: string | null;
+  bio: string | null;
+  brokerage_name: string | null;
+  designations: string[];
+  languages: string[];
+  service_areas: string[];
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  booking_link: string | null;
+  nmls_number: string | null;
+  mortgage_company: string | null;
+  application_url: string | null;
+  license_states: string[];
+  facebook_url: string | null;
+  instagram_url: string | null;
+  linkedin_url: string | null;
+  youtube_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // ---------------------------------------------------------------------------
 // App-facing types (camelCase)
 // ---------------------------------------------------------------------------
@@ -251,6 +285,33 @@ export interface Website {
  * etc.) but is its own type since the DB schema and the mock/demo shape
  * diverge (see file header comment).
  */
+export interface BrandProfile {
+  id: string;
+  userId: string;
+  headshotUrl: string | null;
+  logoUrl: string | null;
+  signatureUrl: string | null;
+  bio: string | null;
+  brokerageName: string | null;
+  designations: string[];
+  languages: string[];
+  serviceAreas: string[];
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  bookingLink: string | null;
+  nmlsNumber: string | null;
+  mortgageCompany: string | null;
+  applicationUrl: string | null;
+  licenseStates: string[];
+  facebookUrl: string | null;
+  instagramUrl: string | null;
+  linkedinUrl: string | null;
+  youtubeUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DbProperty {
   id: string;
   address: string;
@@ -348,6 +409,35 @@ export function mapWebsiteRow(row: WebsiteRow): Website {
     isPublished: row.is_published,
     version: row.version,
     publishedSnapshot: row.published_snapshot,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+export function mapBrandProfileRow(row: BrandProfileRow): BrandProfile {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    headshotUrl: row.headshot_url,
+    logoUrl: row.logo_url,
+    signatureUrl: row.signature_url,
+    bio: row.bio,
+    brokerageName: row.brokerage_name,
+    designations: row.designations ?? [],
+    languages: row.languages ?? [],
+    serviceAreas: row.service_areas ?? [],
+    phone: row.phone,
+    email: row.email,
+    website: row.website,
+    bookingLink: row.booking_link,
+    nmlsNumber: row.nmls_number,
+    mortgageCompany: row.mortgage_company,
+    applicationUrl: row.application_url,
+    licenseStates: row.license_states ?? [],
+    facebookUrl: row.facebook_url,
+    instagramUrl: row.instagram_url,
+    linkedinUrl: row.linkedin_url,
+    youtubeUrl: row.youtube_url,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

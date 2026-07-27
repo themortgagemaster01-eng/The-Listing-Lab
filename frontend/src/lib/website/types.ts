@@ -12,7 +12,9 @@
  * republishing updates the same record rather than creating a new one.
  */
 
-import type { AssetLifecycleState } from "@/lib/supabase/types";
+import type { AssetLifecycleState, FlyerTextContent } from "@/lib/supabase/types";
+import type { PaymentFormData } from "@/lib/payment/types";
+import type { Property } from "@/types";
 
 export type { AssetLifecycleState };
 
@@ -29,6 +31,30 @@ export const WEBSITE_THEME_DESCRIPTIONS: Record<WebsiteTheme, string> = {
   minimal: "Clean grid, lots of white space",
   showcase: "Gallery-forward, gold accents",
 };
+
+/**
+ * The exact, self-contained content a home buyer sees on the public site —
+ * frozen at the moment of the last Publish/Publish Changes click (see
+ * `WebsiteGeneratorWizard.tsx`'s `handlePublish`), NOT re-derived from live
+ * `properties`/`flyers`/`payment_snapshots` rows at request time.
+ *
+ * This is the entire mechanism behind Robert's explicit draft/publish
+ * separation requirement (standard CMS behavior — WordPress/Webflow/
+ * Squarespace): editing the property, its flyer, or its Payment Snapshot
+ * AFTER the website is published must never silently change what a visitor
+ * sees. `src/lib/website/loadPublicWebsite.ts` reads ONLY this snapshot
+ * (stored as `websites.published_snapshot`, see
+ * `supabase/migrations/0005_add_website_published_snapshot.sql`) — never the
+ * live tables. Structurally identical to `PublicWebsiteData` (minus `slug`,
+ * which lives on the parent `WebsiteRecord` and never changes) so the loader
+ * can hand it straight to `PublicSiteView` with no reshaping.
+ */
+export interface WebsitePublishedSnapshot {
+  property: Property;
+  flyerText: FlyerTextContent | null;
+  paymentSnapshotInputs: PaymentFormData | null;
+  theme: WebsiteTheme;
+}
 
 /**
  * A single property website (one `marketing_assets` row + its child
@@ -51,6 +77,16 @@ export const WEBSITE_THEME_DESCRIPTIONS: Record<WebsiteTheme, string> = {
  * `.isPublished` (note: `isReachable` is true for BOTH `"published"` and
  * `"edited"` — see that function's doc comment for why a plain field edit
  * must not take a live site down).
+ *
+ * `publishedSnapshot` (draft/publish separation — see
+ * `WebsitePublishedSnapshot`'s doc comment above) is the SEPARATE source of
+ * truth for WHAT CONTENT is publicly visible. `lifecycleState`/`isReachable`
+ * only gate whether the site is reachable AT ALL; `publishedSnapshot` is
+ * what it actually shows once reachable. The wizard's own live-assembled
+ * preview data (property/flyer/payment-snapshot/theme, always fresh) can
+ * freely diverge from `publishedSnapshot` while the Realtor drafts — see
+ * `WebsiteGeneratorWizard.tsx`'s `hasPendingChanges` for how that drift is
+ * detected and surfaced as a "Save Draft" vs. "Publish Changes" choice.
  */
 export interface WebsiteRecord {
   id: string;
@@ -61,6 +97,8 @@ export interface WebsiteRecord {
   theme: WebsiteTheme;
   /** Source of truth for publish status — see this interface's doc comment above and `src/lib/website/lifecycle.ts`. */
   lifecycleState: AssetLifecycleState;
+  /** Source of truth for publish CONTENT — see this interface's doc comment above. `null` until the first Publish. */
+  publishedSnapshot: WebsitePublishedSnapshot | null;
   version: number;
   createdAt: string;
   updatedAt: string;

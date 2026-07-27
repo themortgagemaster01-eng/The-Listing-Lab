@@ -13,7 +13,7 @@ import type { AuthUserSummary } from "@/lib/supabase/session";
  * this set intentionally render as inert affordances (no `href`) since their
  * destinations don't exist yet in this phase of the build.
  */
-const LIVE_ROUTES = new Set<string>([dashboardNavItem.href, "/ai-command-center"]);
+const LIVE_ROUTES = new Set<string>([dashboardNavItem.href, "/ai-command-center", "/brand-center"]);
 
 interface SidebarProps {
   user?: AuthUserSummary | null;

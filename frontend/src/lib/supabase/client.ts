@@ -1,4 +1,5 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Browser-side Supabase client factory.
@@ -15,6 +16,16 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * `NEXT_PUBLIC_` names in publishable/anon-key order and falls back to
  * `null` (never throws) if neither is set, so callers must check for `null`
  * and fall back to `src/lib/mock-data.ts` — exactly what the app does today.
+ *
+ * AUTH NOTE (added when building real sign-in/sign-up): this now uses
+ * `createBrowserClient` from `@supabase/ssr` instead of plain
+ * `@supabase/supabase-js` `createClient`. Functionally identical for every
+ * existing use of this client (storage uploads, table reads, etc.) — the
+ * only difference is `createBrowserClient` also writes the auth session to a
+ * cookie (not just localStorage), which is what lets `middleware.ts` and
+ * Server Components (`src/lib/supabase/session.ts`) see that a user is
+ * signed in. Without this, `supabase.auth.signInWithPassword()` here would
+ * work client-side but the server would never know about it.
  *
  * Usage:
  *   const supabase = getSupabaseClient();
@@ -42,12 +53,10 @@ export function getSupabaseClient(): SupabaseClient | null {
     return null;
   }
 
-  cachedClient = createClient(url, anonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
+  // Cookie sync (session visible to the server) is `createBrowserClient`'s
+  // default behavior — no extra options needed for that. `persistSession`/
+  // `autoRefreshToken` also default to `true`.
+  cachedClient = createBrowserClient(url, anonKey);
 
   return cachedClient;
 }

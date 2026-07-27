@@ -120,4 +120,13 @@ export interface QuickAction {
   iconBadgeClass: string;
   /** Optional destination. When present, the tile navigates there. */
   href?: string;
+  /**
+   * Marks this tile as a not-yet-built feature (see `ActionCard.tsx`):
+   * rendered visually muted with a "Soon" badge, non-navigating even if
+   * `href` is also set, and shows a toast on click instead of doing
+   * nothing. Used by the Overview tab's "Jump back in" grid for features
+   * reserved visually ahead of being built (Market Comp Analysis, Open
+   * House Kit, Listing Presentation, Buyer Offer Package).
+   */
+  comingSoon?: boolean;
 }

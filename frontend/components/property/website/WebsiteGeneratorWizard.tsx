@@ -526,10 +526,9 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
             <p className="text-xs text-muted-foreground">
               This site was previously live. Republishing updates the same URL — nothing to re-enter.
             </p>
-            )
-        )}
-      </DashboardCard>
+          )}
+        </DashboardCard>
+      </div>
     </div>
-  </div>
   );
 }

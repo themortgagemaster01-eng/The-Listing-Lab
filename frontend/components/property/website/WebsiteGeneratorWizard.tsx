@@ -398,7 +398,7 @@ export function WebsiteGeneratorWizard({ property }: WebsiteGeneratorWizardProps
           No flyer yet for this property — generate one first to auto-populate your site&apos;s description and feature
           bullets.{" "}
           <Link href={`/property/${propertyId}/marketing-assets`} className="font-medium text-navy-700 underline-offset-4 hover:underline dark:text-gold-400">
-            Go to Flyer Generator
+            Go to Flyer Studio
           </Link>
         </div>
       )}

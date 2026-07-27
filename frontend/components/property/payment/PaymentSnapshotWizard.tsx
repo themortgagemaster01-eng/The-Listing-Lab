@@ -15,6 +15,8 @@ import type { PropertyFormData } from "@/lib/flyer/types";
 import * as paymentPersistence from "@/lib/payment/persistence";
 import { buildPaymentSnapshotResults } from "@/lib/payment/calculations";
 import { emptyPaymentForm, type PaymentSnapshotRecord } from "@/lib/payment/types";
+import { loadBrandProfile } from "@/lib/brand/persistence";
+import { emptyBrandProfileForm, type BrandProfileFormData } from "@/lib/brand/types";
 import { useDebouncedSave } from "@/lib/hooks/use-debounced-save";
 import type { Property } from "@/types";
 
@@ -68,9 +70,14 @@ function createDraftSnapshot(property: Property): PaymentSnapshotRecord {
  *
  * Property/agent info (address, price, agent name/email/phone/photo/
  * application link) is read from the SAME property form the Flyer
- * Generator edits (`src/lib/flyer/persistence.ts` `loadPropertyForm`) —
+ * Studio edits (`src/lib/flyer/persistence.ts` `loadPropertyForm`) —
  * one source of truth for property data, edited in one place
  * (Marketing Assets → Flyers → Details), consumed read-only here.
+ *
+ * NMLS number / mortgage company / licensed states are read, read-only, from
+ * the account-level Brand Center profile (`src/lib/brand/persistence.ts`)
+ * — the "Mortgage (optional)" section built specifically to power this —
+ * rather than duplicated into per-property inputs.
  */
 export function PaymentSnapshotWizard({ property }: PaymentSnapshotWizardProps) {
   const propertyId = property.id;
@@ -78,6 +85,7 @@ export function PaymentSnapshotWizard({ property }: PaymentSnapshotWizardProps) 
   const [propertyForm, setPropertyForm] = React.useState<PropertyFormData>(() => seedFormFromProperty(property));
   const [snapshot, setSnapshot] = React.useState<PaymentSnapshotRecord | null>(null);
   const [allSnapshots, setAllSnapshots] = React.useState<PaymentSnapshotRecord[]>([]);
+  const [brandProfile, setBrandProfile] = React.useState<BrandProfileFormData>(() => emptyBrandProfileForm());
 
   const snapshotsRef = React.useRef(allSnapshots);
   React.useEffect(() => {
@@ -88,13 +96,15 @@ export function PaymentSnapshotWizard({ property }: PaymentSnapshotWizardProps) 
   React.useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [savedPropertyForm, savedSnapshots] = await Promise.all([
+      const [savedPropertyForm, savedSnapshots, savedBrandProfile] = await Promise.all([
         flyerPersistence.loadPropertyForm(propertyId),
         paymentPersistence.loadPaymentSnapshots(propertyId),
+        loadBrandProfile(),
       ]);
       if (cancelled) return;
 
       setPropertyForm(savedPropertyForm ?? seedFormFromProperty(property));
+      setBrandProfile(savedBrandProfile);
 
       if (savedSnapshots.length > 0) {
         setAllSnapshots(savedSnapshots);
@@ -181,7 +191,12 @@ export function PaymentSnapshotWizard({ property }: PaymentSnapshotWizardProps) 
             totalClosingCosts={results.totalClosingCosts}
             programResults={results.programResults}
           />
-          <PaymentExportPanel property={propertyForm} heroPhotoUrl={heroPhotoUrl} results={results} />
+          <PaymentExportPanel
+            property={propertyForm}
+            heroPhotoUrl={heroPhotoUrl}
+            results={results}
+            brandProfile={brandProfile}
+          />
         </div>
       </div>
     </div>

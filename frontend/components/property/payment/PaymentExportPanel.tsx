@@ -10,6 +10,7 @@ import { generatePaymentSnapshotPdfBlob } from "@/lib/pdf/generatePaymentSnapsho
 import { downloadBlob } from "@/lib/pdf/generateFlyerPdfBlob";
 import type { PropertyFormData } from "@/lib/flyer/types";
 import { PAYMENT_SNAPSHOT_DISCLAIMER, type PaymentSnapshotResults } from "@/lib/payment/types";
+import type { BrandProfileFormData } from "@/lib/brand/types";
 
 const currency = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
@@ -17,6 +18,8 @@ interface PaymentExportPanelProps {
   property: PropertyFormData;
   heroPhotoUrl: string | null;
   results: PaymentSnapshotResults;
+  /** NMLS number / mortgage company, read-only from Brand Center — shown on-screen and baked into the exported PDF's footer when present. */
+  brandProfile: BrandProfileFormData;
 }
 
 /**
@@ -27,7 +30,7 @@ interface PaymentExportPanelProps {
  * `PaymentSnapshotPdfDocument.tsx`) so a Realtor never presents this
  * without it, whether or not they ever export the PDF.
  */
-export function PaymentExportPanel({ property, heroPhotoUrl, results }: PaymentExportPanelProps) {
+export function PaymentExportPanel({ property, heroPhotoUrl, results, brandProfile }: PaymentExportPanelProps) {
   const [downloading, setDownloading] = React.useState(false);
   const [downloadError, setDownloadError] = React.useState<string | null>(null);
 
@@ -38,7 +41,7 @@ export function PaymentExportPanel({ property, heroPhotoUrl, results }: PaymentE
     setDownloading(true);
     setDownloadError(null);
     try {
-      const blob = await generatePaymentSnapshotPdfBlob({ property, heroPhotoUrl, results });
+      const blob = await generatePaymentSnapshotPdfBlob({ property, heroPhotoUrl, results, brandProfile });
       const filename = `${(property.address || "listing").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-payment-snapshot.pdf`;
       downloadBlob(blob, filename);
     } catch {
@@ -104,6 +107,15 @@ export function PaymentExportPanel({ property, heroPhotoUrl, results }: PaymentE
       <p className="rounded-xl border border-border bg-background px-4 py-3 text-xs leading-relaxed text-muted-foreground">
         {PAYMENT_SNAPSHOT_DISCLAIMER} Contact {property.agentName || "your agent"} for an accurate, personalized quote.
       </p>
+
+      {(brandProfile.nmlsNumber || brandProfile.mortgageCompany) && (
+        <p className="text-xs text-muted-foreground">
+          {brandProfile.nmlsNumber && <>NMLS #{brandProfile.nmlsNumber}</>}
+          {brandProfile.nmlsNumber && brandProfile.mortgageCompany && " · "}
+          {brandProfile.mortgageCompany}
+          <span className="ml-1 text-muted-foreground/70">— from your Brand Center profile</span>
+        </p>
+      )}
 
       {downloadError && (
         <p className="flex items-center gap-1.5 text-xs font-medium text-red-500">

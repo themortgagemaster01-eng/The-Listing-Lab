@@ -1,4 +1,4 @@
-——————————import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { loadPublicWebsiteBySlug } from "@/lib/website/loadPublicWebsite";
@@ -9,6 +9,26 @@ import { PublicSiteView } from "@/components/property/website/PublicSiteView";
 interface SitePageProps {
   params: { slug: string };
 }
+
+/**
+ * BUG FIX (found during Robert's explicit draft/publish live re-verification
+ * pass): `loadPublicWebsiteBySlug` calls Supabase via plain `fetch` under the
+ * hood (`@supabase/supabase-js`, no custom fetch override — see
+ * `src/lib/supabase/server.ts`). Next.js's App Router caches `fetch` calls
+ * made inside a Server Component by default (its "Data Cache"), independent
+ * of whether the surrounding route is otherwise static or dynamic. Because
+ * this route has no `generateStaticParams` and no other dynamic API call, it
+ * was rendering fresh on every request but silently reusing the FIRST-EVER
+ * cached response for each slug's underlying Supabase reads — so publishing
+ * a new snapshot updated the database correctly, but visitors (and this
+ * page's own re-fetches) kept seeing whatever was cached the first time that
+ * slug was ever loaded. `export const dynamic = "force-dynamic"` opts the
+ * whole route out of both the Full Route Cache and that default fetch
+ * caching, so every request genuinely re-reads `websites.published_snapshot`
+ * — required for the draft/publish model to work at all (a Publish Changes
+ * click must be visible on the very next page load, not "eventually").
+ */
+export const dynamic = "force-dynamic";
 
 /**
  * The public, unauthenticated "Listing Presentation Site" — a real home

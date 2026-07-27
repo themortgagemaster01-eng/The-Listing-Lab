@@ -8,7 +8,7 @@ import type { FlyerTemplate, FlyerTextContent } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
 /**
- * On-screen live preview for the three flyer templates (Phase 2 spec item
+ * On-screen live preview for the four flyer templates (Phase 2 spec item
  * #5) — rendered with the user's ACTUAL uploaded photos and (possibly
  * edited) AI copy, not generic placeholder mockups. Deliberately mirrors
  * the layout structure of `src/lib/pdf/FlyerPdfDocument.tsx` (full-bleed
@@ -89,6 +89,7 @@ export function FlyerLivePreview({ template, form, photos, text, className }: Fl
         {template === "luxury" && <LuxuryPreview form={form} photos={ordered} text={content} price={price} stats={stats} />}
         {template === "modern" && <ModernPreview form={form} photos={ordered} text={content} price={price} stats={stats} />}
         {template === "classic" && <ClassicPreview form={form} photos={ordered} text={content} price={price} stats={stats} />}
+        {template === "minimal" && <MinimalPreview form={form} photos={ordered} text={content} price={price} stats={stats} />}
       </div>
     </div>
   );
@@ -262,6 +263,65 @@ function ClassicPreview({ form, photos, text, price, stats }: TemplateInnerProps
   );
 }
 
+function MinimalPreview({ form, photos, text, price, stats }: TemplateInnerProps) {
+  const gallery = photos.slice(1, 4);
+  return (
+    <div style={{ width: BASE_WIDTH, height: BASE_HEIGHT }} className="flex flex-col px-12 py-10 font-sans">
+      <div className="mb-4 flex items-center gap-2">
+        <span className="h-px w-7 bg-gold-500" />
+        <span className="text-xs font-bold tracking-[0.3em] text-gold-600">NEW LISTING</span>
+      </div>
+      <h2 className="mb-1.5 text-4xl font-normal leading-tight text-navy-950">{text.headline}</h2>
+      <div className="mb-5 flex items-end justify-between">
+        <p className="text-sm text-navy-400">
+          {form.address}
+          {form.cityStateZip ? `, ${form.cityStateZip}` : ""}
+          {stats ? `   ·   ${stats}` : ""}
+        </p>
+        {price && <p className="text-xl font-bold text-navy-950">{price}</p>}
+      </div>
+
+      <PhotoOrPlaceholder url={photos[0]?.url} className="h-56 w-full" />
+      {gallery.length > 0 && (
+        <div className="mt-1 flex gap-1">
+          {gallery.map((p, i) => (
+            <PhotoOrPlaceholder key={i} url={p.url} className="h-16 flex-1" />
+          ))}
+        </div>
+      )}
+
+      <div className="mt-6 flex flex-1 gap-8">
+        <div className="flex-[1.3]">
+          <p className="text-sm leading-relaxed text-navy-900">{text.description}</p>
+          <ul className="mt-4 space-y-1.5">
+            {text.featureBullets.slice(0, 8).map((b, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-navy-900">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold-500" />
+                {b}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex-1">
+          <div className="border border-gold-200 p-4">
+            <p className="mb-1.5 text-xs font-bold tracking-widest text-gold-600">THE NEIGHBORHOOD</p>
+            <p className="text-xs leading-relaxed text-navy-400">{text.neighborhoodHighlights}</p>
+            <div className="my-3 h-px bg-gold-200" />
+            <p className="text-sm font-bold text-navy-950">{text.callToAction}</p>
+            <p className="mt-1 text-[11px] text-navy-400">
+              MLS# {form.mlsNumber || "—"} · {form.propertyType || "Residential"}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-auto border-t border-border pt-4">
+        <AgentFooterMinimal form={form} />
+      </div>
+    </div>
+  );
+}
+
 function AgentFooterLuxury({ form }: { form: PropertyFormData }) {
   return (
     <div className="flex items-center justify-between px-10 pb-6">
@@ -279,6 +339,14 @@ function AgentFooterModern({ form }: { form: PropertyFormData }) {
   );
 }
 function AgentFooterClassic({ form }: { form: PropertyFormData }) {
+  return (
+    <div className="flex items-center justify-between">
+      <AgentBlock form={form} />
+      <QrPlaceholder />
+    </div>
+  );
+}
+function AgentFooterMinimal({ form }: { form: PropertyFormData }) {
   return (
     <div className="flex items-center justify-between">
       <AgentBlock form={form} />

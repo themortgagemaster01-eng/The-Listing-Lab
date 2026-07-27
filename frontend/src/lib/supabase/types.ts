@@ -91,7 +91,7 @@ export interface MarketingAssetRow {
   updated_at: string;
 }
 
-export type FlyerTemplate = "luxury" | "modern" | "classic";
+export type FlyerTemplate = "luxury" | "modern" | "classic" | "minimal";
 
 /**
  * Shape of both `flyers.ai_generated_text` and `flyers.user_edited_text`.

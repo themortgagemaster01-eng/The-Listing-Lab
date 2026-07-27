@@ -42,10 +42,26 @@ export async function generateAsset<T extends AssetType>(
     // once that feature is built, following the same pattern as 'flyer':
     //   case "social_post":
     //     return AIService.generateSocialPost(inputs) as GenerateAssetResult<T>;
-    //   case "website":
-    //     return AIService.generateWebsiteCopy(inputs) as GenerateAssetResult<T>;
     //   case "payment_snapshot":
     //     return AIService.generatePaymentSnapshot(inputs) as GenerateAssetResult<T>;
+    //
+    // NOTE — "website" is intentionally NOT listed above: the Property
+    // Website Generator ("Listing Presentation Site",
+    // `components/property/website/WebsiteGeneratorWizard.tsx`) makes no AI
+    // call of its own. It's pure reuse/assembly of data that already went
+    // through AI generation elsewhere — the property's most recent flyer
+    // copy (`resolveFlyerText`) and its most recent Payment Snapshot
+    // (`buildPaymentSnapshotResults`) — so there is nothing for this
+    // dispatcher to generate for that asset type. Should a future iteration
+    // add its own AI step (e.g. website-specific copy variants), add a real
+    // `case "website"` here then, following the same pattern as 'flyer'.
+    //
+    // Also NOT listed: "market_comp" (Market Comp Analysis, v1.1 —
+    // `src/lib/market-comp/generate.ts`). It isn't in the `AssetType` union
+    // below yet because `marketing_assets_asset_type_check` in
+    // `supabase/migrations/0001_init.sql` doesn't allow that value — adding
+    // real support means both a migration (extending that check constraint)
+    // and a case here calling `generateMarketCompAnalysis`.
 
     default:
       throw new Error(`Not yet implemented for type: ${type}`);

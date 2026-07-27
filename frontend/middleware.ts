@@ -17,10 +17,10 @@ import { NextResponse, type NextRequest } from "next/server";
  *
  * Matches the routes under the `(app)` route group
  * (`src/app/(app)/layout.tsx`): `/dashboard`, `/property/...`,
- * `/ai-command-center`.
+ * `/ai-command-center`, `/brand-center`.
  */
 
-const PROTECTED_PREFIXES = ["/dashboard", "/property", "/ai-command-center"];
+const PROTECTED_PREFIXES = ["/dashboard", "/property", "/ai-command-center", "/brand-center"];
 const AUTH_PAGES = new Set(["/login", "/signup"]);
 
 export async function middleware(request: NextRequest) {

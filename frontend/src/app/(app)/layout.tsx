@@ -17,11 +17,20 @@ import { getAuthUser, isSupabaseSessionConfigured } from "@/lib/supabase/session
  * `isSupabaseSessionConfigured`'s doc comment) so a fresh local checkout
  * without env vars still works, same graceful-degradation convention as the
  * rest of this app.
+ *
+ * TEMPORARY (Robert, 2026-07-27): matches `AUTH_GATE_ENABLED` in
+ * `middleware.ts` — auth enforcement disabled on both gates so testing
+ * isn't blocked by a sign-in issue. `getAuthUser()` still runs, so
+ * `AppShell` gets a real user when one exists and `null` otherwise (the
+ * same shape it already handles in local/no-Supabase mode). Flip both
+ * flags back to `true` to restore protection.
  */
+const AUTH_GATE_ENABLED = false;
+
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getAuthUser();
 
-  if (isSupabaseSessionConfigured && !user) {
+  if (AUTH_GATE_ENABLED && isSupabaseSessionConfigured && !user) {
     redirect("/login");
   }
 

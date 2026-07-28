@@ -290,7 +290,7 @@ function PaymentSnapshotPage({ data }: { data: PaymentSnapshotPdfData }) {
 
 export function PaymentSnapshotPdfDocument({ data }: { data: PaymentSnapshotPdfData }) {
   return (
-    <Document title={`${data.address} — Payment Snapshot`} author={data.agentName || "The Listing Lab"}>
+    <Document title={`${data.address} — Payment Snapshot`} author={data.agentName || "Realtor Toolbox"}>
       <PaymentSnapshotPage data={data} />
     </Document>
   );

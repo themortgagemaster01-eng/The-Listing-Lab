@@ -67,9 +67,11 @@ function Monogram({ size, onDark }: { size: number; onDark: boolean }) {
 }
 
 /**
- * Reusable "Listing Lab" logo lockup. Renders the house-silhouette monogram
- * plus wordmark for `sidebar` / `login` variants, or an icon-only mark for
- * `compact` (mobile header) placements.
+ * Reusable "Realtor Toolbox" logo lockup. Renders the house-silhouette
+ * monogram plus wordmark for `sidebar` / `login` variants, or an icon-only
+ * mark for `compact` (mobile header) placements. The monogram glyph itself
+ * is unchanged from the "Listing Lab" rebrand — it reads as an abstract
+ * house silhouette, not literal initials, so it still works here.
  */
 export function Logo({ variant = "sidebar", className }: LogoProps) {
   const onDark = variant === "sidebar";
@@ -94,8 +96,8 @@ export function Logo({ variant = "sidebar", className }: LogoProps) {
               wordmarkTextSizes[variant]
             )}
           >
-            <span className={onDark ? "text-white" : "text-navy-800"}>LISTING</span>{" "}
-            <span className="text-gold-500">LAB</span>
+            <span className={onDark ? "text-white" : "text-navy-800"}>REALTOR</span>{" "}
+            <span className="text-gold-500">TOOLBOX</span>
           </span>
         </div>
       </div>

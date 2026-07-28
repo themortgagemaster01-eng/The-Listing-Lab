@@ -66,7 +66,7 @@ export const dynamic = "force-dynamic";
  */
 export async function generateMetadata({ params }: SitePageProps): Promise<Metadata> {
   const data = await loadPublicWebsiteBySlug(params.slug);
-  if (!data) return { title: "Listing Not Found | The Listing Lab" };
+  if (!data) return { title: "Listing Not Found | Realtor Toolbox" };
   const { property, flyerText } = data;
   return {
     title: `${property.address} | ${property.cityStateZip}`,

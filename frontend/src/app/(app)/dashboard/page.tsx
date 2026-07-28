@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { TopNavigation } from "@/components/layout/TopNavigation";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { SearchCommandBar } from "@/components/layout/SearchCommandBar";
+import { FlagshipBanner } from "@/components/dashboard/FlagshipBanner";
 import { StatsRow } from "@/components/dashboard/StatsRow";
 import { RecentPropertyLabs } from "@/components/dashboard/RecentPropertyLabs";
 import { AICommandWidget } from "@/components/dashboard/AICommandWidget";
@@ -31,6 +32,13 @@ export default async function DashboardPage() {
     <div className="animate-fade-slide-in space-y-8">
       <TopNavigation name={firstName} subtitle={SUBTITLE} avatarUrl={user?.avatarUrl} />
       <MobileHeader name={firstName} subtitle={SUBTITLE} avatarUrl={user?.avatarUrl} />
+
+      {/*
+        Flagship hero: per Robert's 2026-07-28 "six flagship tools" update,
+        AI CMA is the lead flagship feature and gets top-of-page billing,
+        ahead of the AI command bar. See `FlagshipBanner.tsx`.
+      */}
+      <FlagshipBanner />
 
       {/* AI command hero: the visual centerpiece of the dashboard. */}
       <SearchCommandBar />

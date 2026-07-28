@@ -1,34 +1,27 @@
-"use client";
-
+import Link from "next/link";
 import { BarChart3, ArrowRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/components/shared/Toast";
+import { EXAMPLE_PROPERTY_ID } from "@/lib/mock-data";
 
 /**
  * Dashboard hero banner spotlighting AI Comparative Market Analysis (CMA) —
- * per Robert's 2026-07-28 "six flagship tools" update, CMA is now the lead
+ * per Robert's 2026-07-28 "six flagship tools" update, CMA is the lead
  * flagship feature and gets top-level billing on the dashboard, ahead of
- * `SearchCommandBar`. It is not built yet (see `docs/FUTURE_FEATURES.md`,
- * where it now sits at the top of the build-priority queue, ahead of every
- * other not-yet-started item), so this is a promo/placeholder banner rather
- * than a real entry point — clicking it surfaces the same "coming soon"
- * toast convention used by `ComingSoonButton` elsewhere in the app, and it
- * intentionally does not link anywhere.
+ * `SearchCommandBar`. BUILT 2026-07-28 (provider-based architecture — see
+ * `src/lib/market-comp/`) — this now links straight into the real wizard on
+ * the example property rather than showing a "coming soon" toast.
  *
  * This is additive to, not a replacement for, the "AI Comparative Market
  * Analysis (CMA)" tile at the top of the toolbox grid (`QuickActionsGrid` /
  * `toolboxCategories` in `src/lib/mock-data.ts`) — the banner is the
- * headline placement, the tile is the toolbox-grid placement, both point at
- * the same not-yet-built feature.
+ * headline placement, the tile is the toolbox-grid placement, both now point
+ * at the same real feature.
  */
 export function FlagshipBanner() {
-  const { showToast } = useToast();
-
   return (
-    <button
-      type="button"
-      onClick={() => showToast("AI CMA is coming soon — it's the top of our build queue.")}
+    <Link
+      href={`/property/${EXAMPLE_PROPERTY_ID}/market-comp`}
       className="group flex w-full flex-col items-start gap-3 rounded-3xl border-2 border-gold-500 bg-gradient-to-br from-navy-800 to-navy-900 p-6 text-left shadow-soft-lg transition-transform duration-base hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-8"
     >
       <div className="flex items-center gap-4">
@@ -40,18 +33,18 @@ export function FlagshipBanner() {
             <h2 className="font-display text-lg font-semibold text-white sm:text-xl">
               AI Comparative Market Analysis
             </h2>
-            <Badge variant="gold">Coming Soon</Badge>
+            <Badge variant="gold">Flagship</Badge>
           </div>
           <p className="mt-1 text-sm text-navy-100">
-            Our new flagship tool — a branded CMA in minutes, not hours. Top of the build queue.
+            Our flagship tool — a branded CMA in minutes, not hours.
           </p>
         </div>
       </div>
 
       <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gold-400 transition-transform group-hover:translate-x-0.5">
-        Learn more
+        Start a CMA
         <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </span>
-    </button>
+    </Link>
   );
 }

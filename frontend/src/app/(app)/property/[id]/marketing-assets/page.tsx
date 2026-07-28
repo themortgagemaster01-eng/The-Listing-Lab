@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { MarketingAssetsTab } from "@/components/property/MarketingAssetsTab";
 import { loadPropertyForWorkspace } from "@/lib/property/loader";
 
-export const metadata: Metadata = { title: "Marketing Assets | Listing Lab" };
+export const metadata: Metadata = { title: "Marketing Assets | Realtor Toolbox" };
 
 export default async function MarketingAssetsPage({
   params,

@@ -130,3 +130,18 @@ export interface QuickAction {
    */
   comingSoon?: boolean;
 }
+
+/**
+ * A labeled group of `QuickAction` tiles on the dashboard toolbox
+ * (`QuickActionsGrid`) — mirrors the product's toolbox categories (Property
+ * Marketing, Mortgage Center, Client PDF Center, Income Analyzer, Realtor
+ * Website Builder, Mortgage Market Dashboard, Brand Center) so the full
+ * direction is visible even where most tiles are still `comingSoon`. See
+ * `docs/PRODUCT_PRINCIPLES.md` for the category boundaries and
+ * `docs/FUTURE_FEATURES.md` for what's behind each not-yet-built tile.
+ */
+export interface ToolboxCategory {
+  id: string;
+  label: string;
+  actions: QuickAction[];
+}

@@ -337,7 +337,7 @@ export function PublicSiteView({ data, publicUrl, qrDataUrl }: PublicSiteViewPro
 
       <footer className="border-t border-border bg-surface px-4 py-8 text-center text-xs text-muted-foreground sm:px-6">
         <p>{property.address}, {property.cityStateZip}</p>
-        <p className="mt-1">Presented by {agentName || "The Listing Lab"}.</p>
+        <p className="mt-1">Presented by {agentName || "Realtor Toolbox"}.</p>
       </footer>
     </>
   );

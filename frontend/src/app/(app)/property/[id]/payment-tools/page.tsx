@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PaymentToolsTab } from "@/components/property/PaymentToolsTab";
 import { loadPropertyForWorkspace } from "@/lib/property/loader";
 
-export const metadata: Metadata = { title: "Mortgage Center | Listing Lab" };
+export const metadata: Metadata = { title: "Mortgage Center | Realtor Toolbox" };
 
 export default async function PaymentToolsPage({ params }: { params: { id: string } }) {
   const property = await loadPropertyForWorkspace(params.id);

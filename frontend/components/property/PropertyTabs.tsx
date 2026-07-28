@@ -23,6 +23,7 @@ const TABS = [
   { label: "AI Chat", slug: "ai-chat" },
   { label: "Mortgage Center", slug: "payment-tools" },
   { label: "AI Income Analyzer", slug: "income-analyzer" },
+  { label: "AI CMA", slug: "market-comp" },
   { label: "Documents", slug: "documents" },
   { label: "QR Codes", slug: "qr-codes" },
   { label: "Open Houses", slug: "open-houses" },

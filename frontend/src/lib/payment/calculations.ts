@@ -2,6 +2,8 @@ import { parseNumberField } from "@/lib/flyer/mappers";
 import {
   LOAN_PROGRAM_LABELS,
   emptySonymaEligibilityInput,
+  type AffordabilityInput,
+  type AffordabilityResult,
   type ClosingCostLineItem,
   type LoanProgram,
   type LoanProgramResult,
@@ -117,7 +119,7 @@ interface ProgramMathParams {
  * presenting stale or wrong figures as real. The Realtor instead looks up
  * their buyer's county at hcr.ny.gov/income-limits and enters it directly.
  */
-function evaluateSonymaEligibility(input: SonymaEligibilityInput | undefined, purchasePrice: number): string[] {
+export function evaluateSonymaEligibility(input: SonymaEligibilityInput | undefined, purchasePrice: number): string[] {
   const elig = input ?? emptySonymaEligibilityInput();
   const notes: string[] = [];
 
@@ -304,5 +306,86 @@ export function buildPaymentSnapshotResults(form: PaymentFormData): PaymentSnaps
     closingCosts,
     totalClosingCosts,
     computedAt: new Date().toISOString(),
+  };
+}
+
+/** Rate/term/down-payment/tax/insurance/HOA assumptions `calculateAffordability` reuses from the shared Payment Calculator inputs. */
+export interface AffordabilityAssumptions {
+  ratePercent: number;
+  termYears: number;
+  downPaymentPercent: number;
+  annualPropertyTax: number;
+  annualHomeInsurance: number;
+  monthlyHoa: number;
+}
+
+/**
+ * "How much can this buyer afford?" — the reverse of every other Mortgage
+ * Center calculation (which start from a purchase price). Uses the
+ * widely-used 28/36 debt-to-income guideline: housing payment capped at
+ * 28% of gross monthly income, and total debt (housing + other monthly
+ * debts) capped at 36% — whichever produces the smaller housing budget is
+ * binding. That housing budget is then reduced by the tax/insurance/HOA
+ * assumptions already entered in Payment Calculator to solve for a maximum
+ * P&I payment, converted to a maximum loan amount via the standard
+ * amortization formula (reusing `calculateMonthlyPI`'s math, inverted),
+ * then back into a maximum purchase price via the entered down payment %.
+ *
+ * This is a common industry rule of thumb a Realtor can walk a buyer
+ * through in conversation — NOT a lender's actual underwriting decision,
+ * which depends on credit, reserves, and program-specific rules this does
+ * not model. Always paired with `PAYMENT_SNAPSHOT_DISCLAIMER` in the UI.
+ */
+export function calculateAffordability(
+  input: AffordabilityInput,
+  assumptions: AffordabilityAssumptions
+): AffordabilityResult {
+  const annualIncome = safeNumber(parseNumberField(input.annualIncome));
+  const monthlyDebts = safeNumber(parseNumberField(input.monthlyDebts));
+  const monthlyIncome = annualIncome / 12;
+
+  const frontEndRatioUsed = 0.28;
+  const backEndRatioUsed = 0.36;
+
+  const frontEndBudget = monthlyIncome * frontEndRatioUsed;
+  const backEndBudget = monthlyIncome * backEndRatioUsed - monthlyDebts;
+  const maxMonthlyHousingPayment = Math.max(Math.min(frontEndBudget, backEndBudget), 0);
+  const isAffordableAtAll = monthlyIncome > 0 && maxMonthlyHousingPayment > 0;
+
+  const estimatedMonthlyTaxInsuranceHoa =
+    safeNumber(assumptions.annualPropertyTax) / 12 +
+    safeNumber(assumptions.annualHomeInsurance) / 12 +
+    safeNumber(assumptions.monthlyHoa);
+
+  const maxPIPayment = Math.max(maxMonthlyHousingPayment - estimatedMonthlyTaxInsuranceHoa, 0);
+
+  const monthlyRate = safeNumber(assumptions.ratePercent) / 100 / 12;
+  const numPayments = (safeNumber(assumptions.termYears) || 30) * 12;
+
+  let maxLoanAmount = 0;
+  if (maxPIPayment > 0 && numPayments > 0) {
+    if (monthlyRate === 0) {
+      maxLoanAmount = maxPIPayment * numPayments;
+    } else {
+      const factor = Math.pow(1 + monthlyRate, numPayments);
+      if (Number.isFinite(factor) && factor - 1 !== 0) {
+        maxLoanAmount = (maxPIPayment * (factor - 1)) / (monthlyRate * factor);
+      }
+    }
+  }
+
+  const downPercent = Math.min(Math.max(safeNumber(assumptions.downPaymentPercent), 0), 99);
+  const maxPurchasePrice = maxLoanAmount / (1 - downPercent / 100);
+
+  return {
+    maxMonthlyHousingPayment,
+    maxLoanAmount,
+    maxPurchasePrice,
+    frontEndRatioUsed,
+    backEndRatioUsed,
+    monthlyIncome,
+    monthlyDebts,
+    estimatedMonthlyTaxInsuranceHoa,
+    isAffordableAtAll,
   };
 }

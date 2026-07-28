@@ -70,6 +70,20 @@ export interface LoanProgramInput {
 
 export type LoanProgramInputMap = Record<LoanProgram, LoanProgramInput>;
 
+/**
+ * Buyer income/debt inputs for the "Affordability" Mortgage Center section
+ * — the reverse of every other section (which start from a purchase
+ * price). See `calculateAffordability` in `calculations.ts`.
+ */
+export interface AffordabilityInput {
+  annualIncome: string;
+  monthlyDebts: string;
+}
+
+export function emptyAffordabilityInput(): AffordabilityInput {
+  return { annualIncome: "", monthlyDebts: "" };
+}
+
 /** Editable Payment Snapshot form fields. */
 export interface PaymentFormData {
   purchasePrice: string;
@@ -84,6 +98,8 @@ export interface PaymentFormData {
   programs: LoanProgramInputMap;
   /** Optional — absent on snapshots saved before this field existed; always fall back to `emptySonymaEligibilityInput()` when reading. */
   sonymaEligibility?: SonymaEligibilityInput;
+  /** Optional — absent on snapshots saved before this field existed; always fall back to `emptyAffordabilityInput()` when reading. */
+  affordability?: AffordabilityInput;
 }
 
 export function defaultLoanProgramInputMap(defaultRate = "6.5"): LoanProgramInputMap {
@@ -107,8 +123,45 @@ export function emptyPaymentForm(seed?: Partial<PaymentFormData>): PaymentFormDa
     loanTermYears: "30",
     programs: defaultLoanProgramInputMap(),
     sonymaEligibility: emptySonymaEligibilityInput(),
+    affordability: emptyAffordabilityInput(),
     ...seed,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Mortgage Center — modular section navigation
+// ---------------------------------------------------------------------------
+
+/**
+ * The six modular Mortgage Center sections, each its own navigable view
+ * (`MortgageCenterNav.tsx`) sharing one set of purchase inputs
+ * (`PaymentInputsForm`) rather than duplicating a form per section — one
+ * source of truth, six focused presentations.
+ */
+export type MortgageCenterSection =
+  | "calculator"
+  | "compare"
+  | "cash-to-close"
+  | "affordability"
+  | "sonyma"
+  | "share";
+
+export interface MortgageCenterSectionMeta {
+  id: MortgageCenterSection;
+  label: string;
+}
+
+export const MORTGAGE_CENTER_SECTIONS: MortgageCenterSectionMeta[] = [
+  { id: "calculator", label: "Payment Calculator" },
+  { id: "compare", label: "Compare Loan Options" },
+  { id: "cash-to-close", label: "Cash to Close" },
+  { id: "affordability", label: "Affordability" },
+  { id: "sonyma", label: "SONYMA / DPA" },
+  { id: "share", label: "Share / Export" },
+];
+
+export function isMortgageCenterSection(value: string | undefined | null): value is MortgageCenterSection {
+  return !!value && MORTGAGE_CENTER_SECTIONS.some((s) => s.id === value);
 }
 
 // ---------------------------------------------------------------------------
@@ -154,6 +207,22 @@ export interface PaymentSnapshotResults {
   closingCosts: ClosingCostLineItem[];
   totalClosingCosts: number;
   computedAt: string;
+}
+
+/** Computed output of `calculateAffordability` — see `calculations.ts`. */
+export interface AffordabilityResult {
+  maxMonthlyHousingPayment: number;
+  maxLoanAmount: number;
+  maxPurchasePrice: number;
+  /** The 28% front-end (housing-only) ratio used, as a decimal (0.28). */
+  frontEndRatioUsed: number;
+  /** The 36% back-end (total-debt) ratio used, as a decimal (0.36). */
+  backEndRatioUsed: number;
+  monthlyIncome: number;
+  monthlyDebts: number;
+  estimatedMonthlyTaxInsuranceHoa: number;
+  /** False when income is $0/blank, or existing debts alone already exceed the 36% budget. */
+  isAffordableAtAll: boolean;
 }
 
 export type PaymentSnapshotStatus = "draft" | "final";

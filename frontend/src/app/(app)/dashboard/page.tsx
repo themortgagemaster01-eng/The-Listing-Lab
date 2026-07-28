@@ -13,7 +13,7 @@ import { currentUser, recentActivity } from "@/lib/mock-data";
 import { getAuthUser } from "@/lib/supabase/session";
 
 export const metadata: Metadata = {
-  title: "Dashboard | Listing Lab",
+  title: "Dashboard | Realtor Toolbox",
 };
 
 const SUBTITLE = "Here's what's happening with your Property Labs today.";

@@ -5,7 +5,7 @@ import { currentUser } from "@/lib/mock-data";
 import { getAuthUser } from "@/lib/supabase/session";
 
 export const metadata: Metadata = {
-  title: "Brand Center | Listing Lab",
+  title: "Brand Center | Realtor Toolbox",
 };
 
 /**

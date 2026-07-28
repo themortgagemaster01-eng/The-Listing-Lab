@@ -18,7 +18,16 @@ import { NextResponse, type NextRequest } from "next/server";
  * Matches the routes under the `(app)` route group
  * (`src/app/(app)/layout.tsx`): `/dashboard`, `/property/...`,
  * `/ai-command-center`, `/brand-center`.
+ *
+ * TEMPORARY (Robert, 2026-07-27): auth gate disabled so testing of the rest
+ * of the app isn't blocked by a sign-in issue. Auth code, /login, /signup,
+ * and the Supabase session-refresh logic below are all untouched — only
+ * enforcement is off. Flip `AUTH_GATE_ENABLED` back to `true` (here AND in
+ * the matching flag in `src/app/(app)/layout.tsx`, the second/defense-in-
+ * depth gate) to restore protection. Nothing else needs to change.
  */
+
+const AUTH_GATE_ENABLED = false;
 
 const PROTECTED_PREFIXES = ["/dashboard", "/property", "/ai-command-center", "/brand-center"];
 const AUTH_PAGES = new Set(["/login", "/signup"]);
@@ -60,13 +69,13 @@ export async function middleware(request: NextRequest) {
   );
   const isAuthPage = AUTH_PAGES.has(pathname);
 
-  if (isProtected && !user) {
+  if (AUTH_GATE_ENABLED && isProtected && !user) {
     const redirectUrl = new URL("/login", request.url);
     redirectUrl.searchParams.set("redirectTo", pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (isAuthPage && user) {
+  if (AUTH_GATE_ENABLED && isAuthPage && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

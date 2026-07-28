@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { QrCodeStudio } from "@/components/qr/QrCodeStudio";
 
 export const metadata: Metadata = {
-  title: "QR Code Studio | Listing Lab",
+  title: "QR Code Studio | Realtor Toolbox",
 };
 
 /**

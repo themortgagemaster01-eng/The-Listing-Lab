@@ -445,7 +445,7 @@ function MinimalPage({ data }: { data: FlyerPdfData }) {
 
 export function FlyerPdfDocument({ data }: { data: FlyerPdfData }) {
   return (
-    <Document title={`${data.address} — Flyer`} author={data.agentName || "The Listing Lab"}>
+    <Document title={`${data.address} — Flyer`} author={data.agentName || "Realtor Toolbox"}>
       {data.template === "luxury" && <LuxuryPage data={data} />}
       {data.template === "modern" && <ModernPage data={data} />}
       {data.template === "minimal" && <MinimalPage data={data} />}

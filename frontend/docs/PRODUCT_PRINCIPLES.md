@@ -1,4 +1,4 @@
-# Listing Lab Product Principles
+# Realtor Toolbox Product Principles
 
 Twelve standing rules that govern what gets built and how. Every new tool, feature, or redesign should be checked against these before (and after) it ships.
 
@@ -17,17 +17,18 @@ Twelve standing rules that govern what gets built and how. Every new tool, featu
 
 ## Naming convention
 
-No "AI" prefix in feature names, going forward. **Flyer Studio**, not "AI Flyer Generator." **Mortgage Center**, not "AI Mortgage Calculator." The product is AI-powered throughout — that doesn't need to be spelled out in every tool's name. Name tools for what they do for the Realtor, not for the technology behind them.
+No "AI" prefix in feature names, going forward. **Flyer Studio**, not "AI Flyer Generator." **Mortgage Center**, not "AI Mortgage Calculator." The product is AI-powered throughout — that doesn't need to be spelled out in every tool's name. Name tools for what they do for the Realtor, not for the technology behind them. (The one explicit exception is **AI Income Analyzer** — named that way in Robert's 2026-07-28 Realtor Toolbox master vision doc, so that name is kept as-is rather than forced through this rule.)
 
-## Explicit build boundaries (hard no's)
+## Do Not Build
 
-Robert's standing guardrail, applies to all future feature decisions — these categories are **never in scope**, regardless of how a request is framed:
+Per Robert's 2026-07-28 "Realtor Toolbox – Master Vision" doc — these categories are never in scope, regardless of how a request is framed. This replaces the previous "Explicit build boundaries" list (which also covered email marketing, accounting, and a calendar platform — accounting and calendar are dropped here per the new doc; MLS replacement carries forward; property listing websites is new):
 
-- **CRM** — no contact/lead pipeline management system.
-- **Email marketing** — no bulk sending, drip campaigns, or newsletter tooling.
-- **Transaction management** — no contract-to-close workflow/coordination platform.
-- **Accounting** — no bookkeeping, invoicing, or commission-tracking ledger.
-- **MLS replacement** — extends rule 10 above: complement the MLS, never replace or re-implement its core functions (listing syndication, search authority, etc.).
-- **Calendar platform** — no standalone scheduling/calendar product; the existing "Upcoming" panel surfaces events, it doesn't manage them.
+- **CRM**
+- **Email platform**
+- **Transaction management**
+- **MLS replacement**
+- **Property listing websites**
 
 If a feature request touches one of these categories, flag it back to Robert rather than building it — this list is a hard boundary, not a default-to-build list.
+
+> **Known open conflict (flagged, not resolved):** the existing Property Website Generator (`/property/[id]/marketing-assets?section=website` — draft/publish snapshot system, fully built and verified) does exactly what "Property listing websites" says not to build. Robert is aware and has decided to leave it live and functioning exactly as-is for now while he decides how to reconcile it with this list; nothing about that feature has been hidden, deprecated, or changed. This note stays here until he resolves it — don't build any *new* property-website functionality in the meantime, and don't take this existing feature's continued presence as license to build more like it.

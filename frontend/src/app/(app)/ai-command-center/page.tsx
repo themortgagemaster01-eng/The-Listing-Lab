@@ -4,7 +4,7 @@ import { Sparkles, Wand2, FileSpreadsheet, Instagram, CreditCard } from "lucide-
 import { DashboardCard } from "@/components/shared/DashboardCard";
 
 export const metadata: Metadata = {
-  title: "AI Command Center | Listing Lab",
+  title: "AI Command Center | Realtor Toolbox",
 };
 
 const previewCapabilities = [

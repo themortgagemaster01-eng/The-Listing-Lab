@@ -311,16 +311,28 @@ export const upcomingEvents: UpcomingEvent[] = [
 ];
 
 /**
- * The dashboard toolbox, grouped into the product's toolbox categories per
- * Robert's 2026-07-28 "Realtor Toolbox" master vision doc: Marketing Studio,
- * Client Presentation Center, AI Assistant, Realtor Website Builder, Brand
- * Center, Mortgage Tools, AI Income Analyzer. This replaces the prior
- * (2026-07-27) category set — Client PDF Center is now Client Presentation
- * Center with 6 named report types, Mortgage Center is renamed Mortgage
- * Tools, Income Analyzer is renamed AI Income Analyzer, and the standalone
- * Mortgage Market Dashboard category is folded into a single "Mortgage Rate
- * News" tile inside Mortgage Tools (see docs/FUTURE_FEATURES.md — that item
- * was already documented as the lighter-weight version of the same idea).
+ * The dashboard toolbox, grouped into the product's toolbox categories.
+ *
+ * Ordering per Robert's 2026-07-28 "six flagship tools" update (supersedes
+ * the same-day-earlier "Realtor Toolbox master vision" category order):
+ * **AI Comparative Market Analysis (CMA)** is now the lead flagship
+ * feature and sits first, followed by Marketing Studio, Client
+ * Presentation Center, Realtor Website Builder, AI Assistant, and
+ * Educational Mortgage Tools (renamed from "Mortgage Tools") — those six,
+ * in that order, are the top-level flagship framing. Brand Center and AI
+ * Income Analyzer remain fully part of the product but are explicitly
+ * secondary/utility-tier per Robert, not part of the six-flagship
+ * ordering — they're kept at the end of this array, unchanged, pending a
+ * possible future repositioning decision he's still confirming.
+ *
+ * CMA itself was previously just one report type inside Client
+ * Presentation Center (`tb-cpc-cma`); it's been promoted to its own
+ * top-level category and removed from Client Presentation Center's list
+ * to avoid duplication. It isn't built yet — see the top of
+ * `docs/FUTURE_FEATURES.md`, where it's now the top build priority ahead
+ * of everything else not yet started — so its tile is `comingSoon: true`,
+ * and it also gets a dedicated hero banner on the dashboard (see
+ * `components/dashboard/FlagshipBanner.tsx`).
  *
  * This is a navigation/visibility update, not a build list: tiles for real,
  * shipped tools carry an `href` and deep-link into the example property
@@ -329,18 +341,31 @@ export const upcomingEvents: UpcomingEvent[] = [
  * (muted, "Soon" badge, toast on click — see `ActionCard.tsx`) rather than
  * hidden or faked.
  *
- * Property Websites (`tb-property-websites`) is a known exception: the new
- * vision doc's "Do Not Build" list includes "property listing websites,"
- * which directly conflicts with this already-built, already-verified
- * feature. Per Robert's explicit instruction, it stays exactly as-is here
- * — untouched, still real, still linked — slotted into Marketing Studio
- * since that's where it naturally sits among the other listing-marketing
- * tools, not because the vision doc's Marketing Studio list names it. See
- * `docs/PRODUCT_PRINCIPLES.md` → "Do Not Build" for the full flagged
- * conflict and `docs/FUTURE_FEATURES.md` for what's behind each other
- * "Coming Soon" tile.
+ * Property Websites (`tb-property-websites`) is a known exception: the
+ * 2026-07-28 vision doc's "Do Not Build" list includes "property listing
+ * websites," which directly conflicts with this already-built,
+ * already-verified feature. Per Robert's explicit instruction, it stays
+ * exactly as-is here — untouched, still real, still linked — slotted into
+ * Marketing Studio since that's where it naturally sits among the other
+ * listing-marketing tools. See `docs/PRODUCT_PRINCIPLES.md` → "Do Not
+ * Build" for the full flagged conflict and `docs/FUTURE_FEATURES.md` for
+ * what's behind each other "Coming Soon" tile.
  */
 export const toolboxCategories: ToolboxCategory[] = [
+  {
+    id: "ai-cma",
+    label: "AI Comparative Market Analysis (CMA)",
+    actions: [
+      {
+        id: "tb-cma",
+        title: "AI CMA",
+        subtitle: "Branded comparative market analysis",
+        icon: BarChart3,
+        iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
+        comingSoon: true,
+      },
+    ],
+  },
   {
     id: "marketing-studio",
     label: "Marketing Studio",
@@ -408,14 +433,6 @@ export const toolboxCategories: ToolboxCategory[] = [
     label: "Client Presentation Center",
     actions: [
       {
-        id: "tb-cpc-cma",
-        title: "CMA",
-        subtitle: "Comparative market analysis, branded",
-        icon: BarChart3,
-        iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
-        comingSoon: true,
-      },
-      {
         id: "tb-cpc-market-reports",
         title: "Market Reports",
         subtitle: "Premium branded PDF",
@@ -452,6 +469,20 @@ export const toolboxCategories: ToolboxCategory[] = [
         title: "Neighborhood Reports",
         subtitle: "Premium branded PDF",
         icon: MapPin,
+        iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
+        comingSoon: true,
+      },
+    ],
+  },
+  {
+    id: "realtor-website-builder",
+    label: "Realtor Website Builder",
+    actions: [
+      {
+        id: "tb-realtor-website-builder",
+        title: "Realtor Website Builder",
+        subtitle: "Personal & brokerage/team sites",
+        icon: Globe,
         iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
         comingSoon: true,
       },
@@ -512,36 +543,8 @@ export const toolboxCategories: ToolboxCategory[] = [
     ],
   },
   {
-    id: "realtor-website-builder",
-    label: "Realtor Website Builder",
-    actions: [
-      {
-        id: "tb-realtor-website-builder",
-        title: "Realtor Website Builder",
-        subtitle: "Personal & brokerage/team sites",
-        icon: Globe,
-        iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
-        comingSoon: true,
-      },
-    ],
-  },
-  {
-    id: "brand-center",
-    label: "Brand Center",
-    actions: [
-      {
-        id: "tb-brand-center",
-        title: "Brand Center",
-        subtitle: "Your profile, colors & logo",
-        icon: Palette,
-        iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
-        href: "/brand-center",
-      },
-    ],
-  },
-  {
-    id: "mortgage-tools",
-    label: "Mortgage Tools",
+    id: "educational-mortgage-tools",
+    label: "Educational Mortgage Tools",
     actions: [
       {
         id: "tb-mt-calculator",
@@ -590,6 +593,22 @@ export const toolboxCategories: ToolboxCategory[] = [
         icon: TrendingUp,
         iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
         comingSoon: true,
+      },
+    ],
+  },
+  // Secondary/utility tier (Robert, 2026-07-28): part of the product, but
+  // deliberately NOT part of the six-flagship top-level framing above.
+  {
+    id: "brand-center",
+    label: "Brand Center",
+    actions: [
+      {
+        id: "tb-brand-center",
+        title: "Brand Center",
+        subtitle: "Your profile, colors & logo",
+        icon: Palette,
+        iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
+        href: "/brand-center",
       },
     ],
   },

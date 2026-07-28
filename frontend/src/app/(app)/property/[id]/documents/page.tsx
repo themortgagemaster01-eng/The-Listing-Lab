@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { DocumentsTab } from "@/components/property/DocumentsTab";
 import { loadPropertyForWorkspace } from "@/lib/property/loader";
 
-export const metadata: Metadata = { title: "Documents | Listing Lab" };
+export const metadata: Metadata = { title: "Documents | Realtor Toolbox" };
 
 export default async function DocumentsPage({
   params,

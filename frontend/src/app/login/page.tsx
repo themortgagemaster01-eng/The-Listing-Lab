@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { Logo } from "@/components/Logo";
 
 export const metadata: Metadata = {
-  title: "Sign In | Listing Lab",
+  title: "Sign In | Realtor Toolbox",
 };
 
 export default function LoginPage() {
@@ -61,7 +61,7 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} Listing Lab. All rights reserved.
+          &copy; {new Date().getFullYear()} Realtor Toolbox. All rights reserved.
         </p>
       </div>
     </main>

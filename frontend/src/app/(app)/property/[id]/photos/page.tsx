@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { PhotosTab } from "@/components/property/PhotosTab";
 import { loadPropertyForWorkspace } from "@/lib/property/loader";
 
-export const metadata: Metadata = { title: "Photos | Listing Lab" };
+export const metadata: Metadata = { title: "Photos | Realtor Toolbox" };
 
 export default async function PhotosPage({
   params,

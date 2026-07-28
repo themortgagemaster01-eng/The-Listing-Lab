@@ -328,11 +328,12 @@ export const upcomingEvents: UpcomingEvent[] = [
  * CMA itself was previously just one report type inside Client
  * Presentation Center (`tb-cpc-cma`); it's been promoted to its own
  * top-level category and removed from Client Presentation Center's list
- * to avoid duplication. It isn't built yet — see the top of
- * `docs/FUTURE_FEATURES.md`, where it's now the top build priority ahead
- * of everything else not yet started — so its tile is `comingSoon: true`,
- * and it also gets a dedicated hero banner on the dashboard (see
- * `components/dashboard/FlagshipBanner.tsx`).
+ * to avoid duplication. BUILT 2026-07-28 (provider-based architecture —
+ * manual entry, CSV/Excel/PDF import real; MLS API/licensed data stubbed —
+ * see `src/lib/market-comp/`): its tile now carries a real `href` into the
+ * new `/property/[id]/market-comp` wizard, and it also gets a dedicated
+ * hero banner on the dashboard (see `components/dashboard/FlagshipBanner.tsx`,
+ * updated to match).
  *
  * This is a navigation/visibility update, not a build list: tiles for real,
  * shipped tools carry an `href` and deep-link into the example property
@@ -362,7 +363,7 @@ export const toolboxCategories: ToolboxCategory[] = [
         subtitle: "Branded comparative market analysis",
         icon: BarChart3,
         iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
-        comingSoon: true,
+        href: `/property/${EXAMPLE_PROPERTY_ID}/market-comp`,
       },
     ],
   },
@@ -538,60 +539,6 @@ export const toolboxCategories: ToolboxCategory[] = [
         subtitle: "Full client presentation decks",
         icon: Presentation,
         iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
-        comingSoon: true,
-      },
-    ],
-  },
-  {
-    id: "educational-mortgage-tools",
-    label: "Educational Mortgage Tools",
-    actions: [
-      {
-        id: "tb-mt-calculator",
-        title: "Payment Calculator",
-        subtitle: "Monthly P&I by program",
-        icon: CreditCard,
-        iconBadgeClass: "bg-success-50 text-success dark:bg-success/15 dark:text-green-400",
-        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=calculator`,
-      },
-      {
-        id: "tb-mt-compare",
-        title: "Compare Loan Options",
-        subtitle: "Side-by-side programs",
-        icon: Wallet,
-        iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
-        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=compare`,
-      },
-      {
-        id: "tb-mt-cash-to-close",
-        title: "Cash to Close",
-        subtitle: "Closing costs & totals",
-        icon: FileSpreadsheet,
-        iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
-        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=cash-to-close`,
-      },
-      {
-        id: "tb-mt-affordability",
-        title: "Affordability",
-        subtitle: "What can your buyer afford?",
-        icon: Home,
-        iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
-        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=affordability`,
-      },
-      {
-        id: "tb-mt-sonyma",
-        title: "SONYMA / DPA",
-        subtitle: "NY down-payment assistance",
-        icon: BadgeCheck,
-        iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
-        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=sonyma`,
-      },
-      {
-        id: "tb-mt-rate-news",
-        title: "Mortgage Rate News",
-        subtitle: "Current rate movement & context",
-        icon: TrendingUp,
-        iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
         comingSoon: true,
       },
     ],

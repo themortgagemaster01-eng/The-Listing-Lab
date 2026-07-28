@@ -1,4 +1,4 @@
-# Listing Lab Design Rules
+# Realtor Toolbox Design Rules
 
 The dashboard mockups (desktop + iPhone) are the source of truth. Never redesign screens.
 

@@ -1,11 +1,12 @@
 /**
- * Market Comp Analysis / AI CMA — TYPES ONLY, provider-abstraction design
- * pass (2026-07-28). Still NOT built for real (see
- * `src/lib/market-comp/generate.ts`'s stub and
- * `components/property/market-comp/MarketCompComingSoon.tsx`'s UI stub) —
- * this file is the "already-agreed-upon shape" the real implementation
- * slots into, same purpose as the original v1.1 version of this file, now
- * extended per Robert's explicit 2026-07-28 direction:
+ * Market Comp Analysis / AI CMA. BUILT 2026-07-28 on the provider-abstraction
+ * design pass below — see `src/lib/market-comp/generate.ts` (real AI engine),
+ * `src/lib/market-comp/providers/` (real manual/CSV/Excel/PDF providers plus
+ * MLS/licensed-data stubs), and `components/property/market-comp/MarketCompWizard.tsx`
+ * (real UI). `MarketCompComingSoon.tsx` is the old pre-build stub, now
+ * unused/orphaned — left in place rather than deleted, but nothing imports
+ * it anymore. This file's shape was extended per Robert's explicit
+ * 2026-07-28 direction:
  *
  *   - No hard-coded single data source (Zillow, etc.) — scraping is a real
  *     ToS/legal risk and is explicitly out of scope, not just undesirable.
@@ -163,6 +164,15 @@ export interface MarketCompAnalysisResult {
  * no `@react-pdf/renderer` document component exists for this yet (compare
  * to the real `src/lib/pdf/PaymentSnapshotPdfDocument.tsx`).
  */
+/**
+ * Required on both the on-screen CMA report and the (future) exported PDF —
+ * same one-shared-string convention as `PAYMENT_SNAPSHOT_DISCLAIMER` in
+ * `src/lib/payment/types.ts`, worded for a comparative market analysis
+ * rather than a mortgage payment estimate.
+ */
+export const MARKET_COMP_DISCLAIMER =
+  "This Comparative Market Analysis is an informal estimate based on the comps provided and is not a formal appraisal. It is not a guarantee of sale price, list price, or property value. For a certified valuation, consult a licensed appraiser.";
+
 export const MARKET_COMP_PDF_SECTIONS = [
   "Executive Summary",
   "Subject Property",

@@ -543,6 +543,60 @@ export const toolboxCategories: ToolboxCategory[] = [
       },
     ],
   },
+  {
+    id: "educational-mortgage-tools",
+    label: "Educational Mortgage Tools",
+    actions: [
+      {
+        id: "tb-mt-calculator",
+        title: "Payment Calculator",
+        subtitle: "Monthly P&I by program",
+        icon: CreditCard,
+        iconBadgeClass: "bg-success-50 text-success dark:bg-success/15 dark:text-green-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=calculator`,
+      },
+      {
+        id: "tb-mt-compare",
+        title: "Compare Loan Options",
+        subtitle: "Side-by-side programs",
+        icon: Wallet,
+        iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=compare`,
+      },
+      {
+        id: "tb-mt-cash-to-close",
+        title: "Cash to Close",
+        subtitle: "Closing costs & totals",
+        icon: FileSpreadsheet,
+        iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=cash-to-close`,
+      },
+      {
+        id: "tb-mt-affordability",
+        title: "Affordability",
+        subtitle: "What can your buyer afford?",
+        icon: Home,
+        iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=affordability`,
+      },
+      {
+        id: "tb-mt-sonyma",
+        title: "SONYMA / DPA",
+        subtitle: "NY down-payment assistance",
+        icon: BadgeCheck,
+        iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=sonyma`,
+      },
+      {
+        id: "tb-mt-rate-news",
+        title: "Mortgage Rate News",
+        subtitle: "Current rate movement & context",
+        icon: TrendingUp,
+        iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+        comingSoon: true,
+      },
+    ],
+  },
   // Secondary/utility tier (Robert, 2026-07-28): part of the product, but
   // deliberately NOT part of the six-flagship top-level framing above.
   {

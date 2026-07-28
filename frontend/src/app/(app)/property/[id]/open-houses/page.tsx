@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { OpenHousesTab } from "@/components/property/OpenHousesTab";
 import { loadPropertyForWorkspace } from "@/lib/property/loader";
 
-export const metadata: Metadata = { title: "Open Houses | Listing Lab" };
+export const metadata: Metadata = { title: "Open Houses | Realtor Toolbox" };
 
 export default async function OpenHousesPage({ params }: { params: { id: string } }) {
   const property = await loadPropertyForWorkspace(params.id);

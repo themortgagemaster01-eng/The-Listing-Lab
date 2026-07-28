@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useSearchParams } from "next/navigation";
 
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { FlyerAutoSaveIndicator, type SaveStatus } from "@/components/property/flyer/FlyerAutoSaveIndicator";
@@ -8,13 +9,21 @@ import { PaymentInputsForm } from "@/components/property/payment/PaymentInputsFo
 import { PaymentSummaryCard } from "@/components/property/payment/PaymentSummaryCard";
 import { LoanComparisonTable } from "@/components/property/payment/LoanComparisonTable";
 import { CashToCloseCard } from "@/components/property/payment/CashToCloseCard";
+import { AffordabilityCalculator } from "@/components/property/payment/AffordabilityCalculator";
+import { SonymaEligibilityCard } from "@/components/property/payment/SonymaEligibilityCard";
+import { MortgageCenterNav } from "@/components/property/payment/MortgageCenterNav";
 import { PaymentExportPanel } from "@/components/property/payment/PaymentExportPanel";
 import * as flyerPersistence from "@/lib/flyer/persistence";
 import { seedFormFromProperty } from "@/lib/flyer/mappers";
 import type { PropertyFormData } from "@/lib/flyer/types";
 import * as paymentPersistence from "@/lib/payment/persistence";
 import { buildPaymentSnapshotResults } from "@/lib/payment/calculations";
-import { emptyPaymentForm, type PaymentSnapshotRecord } from "@/lib/payment/types";
+import {
+  emptyPaymentForm,
+  isMortgageCenterSection,
+  type MortgageCenterSection,
+  type PaymentSnapshotRecord,
+} from "@/lib/payment/types";
 import { loadBrandProfile } from "@/lib/brand/persistence";
 import { emptyBrandProfileForm, type BrandProfileFormData } from "@/lib/brand/types";
 import { useDebouncedSave } from "@/lib/hooks/use-debounced-save";
@@ -60,13 +69,19 @@ function createDraftSnapshot(property: Property): PaymentSnapshotRecord {
 }
 
 /**
- * Top-level Payment Snapshot page: inputs → summary → comparison →
- * cash-to-close → export, all on one scrollable page (a single
- * well-organized page reads better here than the Flyer Generator's
- * multi-step wizard — there's no AI-copy step or template gallery to
- * sequence). Owns persistence the same way `FlyerGeneratorWizard.tsx`
- * does: debounced auto-save through `src/lib/payment/persistence.ts`,
- * identical behavior whether Supabase is configured or not.
+ * Mortgage Center: a modular COLLECTION of six calculators — Payment
+ * Calculator, Compare Loan Options, Cash to Close, Affordability, SONYMA/
+ * DPA, Share/Export — navigated via `MortgageCenterNav`'s tab bar rather
+ * than stacked on one long page. All six share ONE set of purchase inputs
+ * (`PaymentInputsForm`, pinned on the left) so there is one source of
+ * truth for price/down payment/tax/insurance/HOA/programs — no section
+ * duplicates its own copy of those fields, only the right-hand panel swaps
+ * per section. The active section lives in the URL (`?section=`, read via
+ * `useSearchParams` / written via `MortgageCenterNav`) so it survives
+ * reloads and can be shared/deep-linked. Owns persistence the same way
+ * `FlyerGeneratorWizard.tsx` does: debounced auto-save through
+ * `src/lib/payment/persistence.ts`, identical behavior whether Supabase is
+ * configured or not.
  *
  * Property/agent info (address, price, agent name/email/phone/photo/
  * application link) is read from the SAME property form the Flyer
@@ -78,9 +93,17 @@ function createDraftSnapshot(property: Property): PaymentSnapshotRecord {
  * the account-level Brand Center profile (`src/lib/brand/persistence.ts`)
  * — the "Mortgage (optional)" section built specifically to power this —
  * rather than duplicated into per-property inputs.
+ *
+ * NOTE: the Share/Export PDF still covers loan comparison + closing costs
+ * + agent info only — Affordability and SONYMA/DPA results are shown
+ * on-screen in their own sections but are not yet folded into the exported
+ * PDF (a deliberate, honestly-scoped next step, not an oversight).
  */
 export function PaymentSnapshotWizard({ property }: PaymentSnapshotWizardProps) {
   const propertyId = property.id;
+  const searchParams = useSearchParams();
+  const sectionParam = searchParams.get("section");
+  const activeSection: MortgageCenterSection = isMortgageCenterSection(sectionParam) ? sectionParam : "calculator";
   const [loaded, setLoaded] = React.useState(false);
   const [propertyForm, setPropertyForm] = React.useState<PropertyFormData>(() => seedFormFromProperty(property));
   const [snapshot, setSnapshot] = React.useState<PaymentSnapshotRecord | null>(null);
@@ -172,31 +195,46 @@ export function PaymentSnapshotWizard({ property }: PaymentSnapshotWizardProps) 
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Payment Snapshot</h2>
+          <h2 className="text-lg font-semibold text-foreground">Mortgage Center</h2>
           <p className="text-sm text-muted-foreground">
-            A polished, client-ready payment comparison you can email to a buyer.
+            A modular set of calculators you can walk a buyer through — or share as a polished PDF.
           </p>
         </div>
         <FlyerAutoSaveIndicator status={saveStatus} />
       </div>
 
+      <MortgageCenterNav active={activeSection} />
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[380px_1fr]">
         <PaymentInputsForm form={snapshot.inputs} onChange={updateInputs} saveStatus={saveStatus} />
 
         <div className="space-y-6">
-          {primary && <PaymentSummaryCard program={primary} />}
-          <LoanComparisonTable programResults={results.programResults} />
-          <CashToCloseCard
-            closingCosts={results.closingCosts}
-            totalClosingCosts={results.totalClosingCosts}
-            programResults={results.programResults}
-          />
-          <PaymentExportPanel
-            property={propertyForm}
-            heroPhotoUrl={heroPhotoUrl}
-            results={results}
-            brandProfile={brandProfile}
-          />
+          {activeSection === "calculator" && primary && <PaymentSummaryCard program={primary} />}
+
+          {activeSection === "compare" && <LoanComparisonTable programResults={results.programResults} />}
+
+          {activeSection === "cash-to-close" && (
+            <CashToCloseCard
+              closingCosts={results.closingCosts}
+              totalClosingCosts={results.totalClosingCosts}
+              programResults={results.programResults}
+            />
+          )}
+
+          {activeSection === "affordability" && (
+            <AffordabilityCalculator form={snapshot.inputs} onChange={updateInputs} />
+          )}
+
+          {activeSection === "sonyma" && <SonymaEligibilityCard form={snapshot.inputs} onChange={updateInputs} />}
+
+          {activeSection === "share" && (
+            <PaymentExportPanel
+              property={propertyForm}
+              heroPhotoUrl={heroPhotoUrl}
+              results={results}
+              brandProfile={brandProfile}
+            />
+          )}
         </div>
       </div>
     </div>

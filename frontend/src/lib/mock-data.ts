@@ -23,6 +23,8 @@ import {
   ArrowUpRight,
   Globe,
   BadgeCheck,
+  TrendingUp,
+  Palette,
 } from "lucide-react";
 import type {
   NavSection,
@@ -34,6 +36,7 @@ import type {
   UpcomingEvent,
   AiSuggestion,
   QuickAction,
+  ToolboxCategory,
 } from "@/types";
 
 /** The fully-built-out example property used across dashboard shortcuts and demos. */
@@ -299,83 +302,190 @@ export const upcomingEvents: UpcomingEvent[] = [
 ];
 
 /**
- * Quick-action tiles on the dashboard. Since there's no "current property"
- * context on the dashboard, every action that maps to a Property Workspace
- * tab deep-links into the example property (123 Main Street) — a reasonable
- * demo shortcut, called out in the Phase 2 report.
+ * The dashboard toolbox, grouped into the product's toolbox categories
+ * (Property Marketing, Mortgage Center, Client PDF Center, Income Analyzer,
+ * Realtor Website Builder, Mortgage Market Dashboard, Brand Center) per
+ * Robert's 2026-07-27 product-direction update. This is a navigation/
+ * visibility update, not a build list: tiles for real, shipped tools carry
+ * an `href` and deep-link into the example property (123 Main Street) —
+ * the same demo-shortcut convention used since Phase 2 — while tiles for
+ * modules that don't exist yet are `comingSoon: true` (muted, "Soon"
+ * badge, toast on click — see `ActionCard.tsx`) rather than hidden or
+ * faked. See `docs/PRODUCT_PRINCIPLES.md` for the hard boundary on what
+ * this app will never build (CRM, email marketing, transaction
+ * management, accounting, MLS replacement, calendar platform) and
+ * `docs/FUTURE_FEATURES.md` for what's behind each "Coming Soon" tile.
  */
-export const quickActions: QuickAction[] = [
+export const toolboxCategories: ToolboxCategory[] = [
   {
-    id: "qa-1",
-    title: "New Property Lab",
-    subtitle: "Start a new listing",
-    icon: FolderKanban,
-    iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
-    href: "/property/new",
+    id: "property-marketing",
+    label: "Property Marketing",
+    actions: [
+      {
+        id: "tb-flyer-studio",
+        title: "Flyer Studio",
+        subtitle: "Design & export listing flyers",
+        icon: FileText,
+        iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/marketing-assets?section=flyers`,
+      },
+      {
+        id: "tb-property-websites",
+        title: "Property Websites",
+        subtitle: "One-click listing site",
+        icon: Globe,
+        iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/marketing-assets?section=website`,
+      },
+      {
+        id: "tb-open-house-package",
+        title: "Open House Package",
+        subtitle: "Sign-in sheets & handouts",
+        icon: PartyPopper,
+        iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
+        comingSoon: true,
+      },
+      {
+        id: "tb-qr-codes",
+        title: "QR Codes",
+        subtitle: "Standalone QR generator",
+        icon: QrCode,
+        iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
+        comingSoon: true,
+      },
+      {
+        id: "tb-ai-photo-enhance",
+        title: "AI Photo Enhancement",
+        subtitle: "Improve your photos",
+        icon: Camera,
+        iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
+        comingSoon: true,
+      },
+      {
+        id: "tb-virtual-staging",
+        title: "Virtual Staging",
+        subtitle: "Stage any room",
+        icon: Wand2,
+        iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
+        comingSoon: true,
+      },
+    ],
   },
   {
-    id: "qa-2",
-    title: "Generate Flyer",
-    subtitle: "Create a listing flyer",
-    icon: FileText,
-    iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/marketing-assets`,
+    id: "mortgage-center",
+    label: "Mortgage Center",
+    actions: [
+      {
+        id: "tb-mc-calculator",
+        title: "Payment Calculator",
+        subtitle: "Monthly P&I by program",
+        icon: CreditCard,
+        iconBadgeClass: "bg-success-50 text-success dark:bg-success/15 dark:text-green-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=calculator`,
+      },
+      {
+        id: "tb-mc-compare",
+        title: "Compare Loan Options",
+        subtitle: "Side-by-side programs",
+        icon: Wallet,
+        iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=compare`,
+      },
+      {
+        id: "tb-mc-cash-to-close",
+        title: "Cash to Close",
+        subtitle: "Closing costs & totals",
+        icon: FileSpreadsheet,
+        iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=cash-to-close`,
+      },
+      {
+        id: "tb-mc-affordability",
+        title: "Affordability",
+        subtitle: "What can your buyer afford?",
+        icon: Home,
+        iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=affordability`,
+      },
+      {
+        id: "tb-mc-sonyma",
+        title: "SONYMA / DPA",
+        subtitle: "NY down-payment assistance",
+        icon: BadgeCheck,
+        iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
+        href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=sonyma`,
+      },
+    ],
   },
   {
-    id: "qa-3",
-    title: "AI Photo Enhance",
-    subtitle: "Improve your photos",
-    icon: Camera,
-    iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/photos?section=ai-enhance`,
+    id: "client-pdf-center",
+    label: "Client PDF Center",
+    actions: [
+      {
+        id: "tb-pdf-center",
+        title: "Client PDF Center",
+        subtitle: "Buyer reports, net sheets & guides",
+        icon: FileText,
+        iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
+        comingSoon: true,
+      },
+    ],
   },
   {
-    id: "qa-4",
-    title: "Virtual Staging",
-    subtitle: "Stage any room",
-    icon: Wand2,
-    iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/photos?section=virtual-staging`,
+    id: "income-analyzer",
+    label: "Income Analyzer",
+    actions: [
+      {
+        id: "tb-income-analyzer",
+        title: "Income Analyzer",
+        subtitle: "Analyze buyer income documents",
+        icon: FileSpreadsheet,
+        iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+        comingSoon: true,
+      },
+    ],
   },
   {
-    id: "qa-5",
-    title: "Payment Snapshot",
-    subtitle: "Create payment sheet",
-    icon: CreditCard,
-    iconBadgeClass: "bg-success-50 text-success dark:bg-success/15 dark:text-green-400",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools`,
+    id: "realtor-website-builder",
+    label: "Realtor Website Builder",
+    actions: [
+      {
+        id: "tb-realtor-website-builder",
+        title: "Realtor Website Builder",
+        subtitle: "Your own agent website",
+        icon: Globe,
+        iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
+        comingSoon: true,
+      },
+    ],
   },
   {
-    id: "qa-6",
-    title: "Closing Costs",
-    subtitle: "Estimate closing costs",
-    icon: Wallet,
-    iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/payment-tools?section=closing-costs`,
+    id: "mortgage-market-dashboard",
+    label: "Mortgage Market Dashboard",
+    actions: [
+      {
+        id: "tb-mortgage-market-dashboard",
+        title: "Mortgage Market Dashboard",
+        subtitle: "Rates, news & talking points",
+        icon: TrendingUp,
+        iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
+        comingSoon: true,
+      },
+    ],
   },
   {
-    id: "qa-7",
-    title: "Buyer Packet",
-    subtitle: "Create buyer guide",
-    icon: FileSpreadsheet,
-    iconBadgeClass: "bg-gold-100 text-gold-600 dark:bg-gold-500/15 dark:text-gold-400",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/documents?section=buyer-packet`,
-  },
-  {
-    id: "qa-8",
-    title: "Seller Packet",
-    subtitle: "Create seller guide",
-    icon: FileText,
-    iconBadgeClass: "bg-navy-800 text-white dark:bg-navy-700",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/documents?section=seller-packet`,
-  },
-  {
-    id: "qa-9",
-    title: "Social Post",
-    subtitle: "Create social content",
-    icon: Instagram,
-    iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
-    href: `/property/${EXAMPLE_PROPERTY_ID}/social-media`,
+    id: "brand-center",
+    label: "Brand Center",
+    actions: [
+      {
+        id: "tb-brand-center",
+        title: "Brand Center",
+        subtitle: "Your profile, colors & logo",
+        icon: Palette,
+        iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
+        href: "/brand-center",
+      },
+    ],
   },
 ];
 

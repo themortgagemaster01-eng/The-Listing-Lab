@@ -622,7 +622,7 @@ export const toolboxCategories: ToolboxCategory[] = [
         subtitle: "Analyze buyer income documents",
         icon: FileSpreadsheet,
         iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
-        comingSoon: true,
+        href: `/property/${EXAMPLE_PROPERTY_ID}/income-analyzer`,
       },
     ],
   },

@@ -29,9 +29,9 @@ const playfairDisplay = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Listing Lab | AI-Powered Marketing for Realtors",
+  title: "Realtor Toolbox | AI-Powered Marketing for Realtors",
   description:
-    "The Listing Lab helps real estate agents create AI-powered marketing materials, from flyers to virtual staging, in minutes.",
+    "Realtor Toolbox helps real estate agents create AI-powered marketing materials, from flyers to virtual staging, in minutes.",
 };
 
 const themeInitScript = `

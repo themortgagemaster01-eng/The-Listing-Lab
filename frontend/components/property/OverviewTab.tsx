@@ -100,6 +100,14 @@ function buildQuickLinks(propertyId: string): QuickAction[] {
       iconBadgeClass: "bg-purple-100 text-purple-600 dark:bg-purple-500/15 dark:text-purple-400",
       href: `/property/${propertyId}/social-media`,
     },
+    {
+      id: "ql-market-comp",
+      title: "AI Comparative Market Analysis",
+      subtitle: "Nearby comps & pricing",
+      icon: BarChart3,
+      iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
+      href: `/property/${propertyId}/market-comp`,
+    },
     // Visual-reservation-only tiles for planned-but-not-yet-built features
     // (see the task brief: "Listing Presentation" here is deliberately a
     // different, more elaborate future concept than the Property Website
@@ -107,14 +115,6 @@ function buildQuickLinks(propertyId: string): QuickAction[] {
     // Marketing Assets → Property Website). `comingSoon: true` makes
     // `ActionCard` render these muted, non-navigating, with a toast on
     // click instead of a dead or fake link.
-    {
-      id: "ql-market-comp",
-      title: "Market Comp Analysis",
-      subtitle: "Nearby comps & pricing",
-      icon: BarChart3,
-      iconBadgeClass: "bg-blue-100 text-blue-600 dark:bg-blue-500/15 dark:text-blue-400",
-      comingSoon: true,
-    },
     {
       id: "ql-open-house-kit",
       title: "Open House Kit",

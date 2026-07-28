@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { FileText, Globe, DollarSign, Share2, ArrowRight } from "lucide-react";
 
 import { Logo } from "@/components/Logo";
@@ -34,7 +33,7 @@ import { Badge } from "@/components/ui/badge";
  * itself is renamed, just what this page calls it out loud.
  */
 export const metadata: Metadata = {
-  title: "Listing Lab | Everything you need to market a listing",
+  title: "Realtor Toolbox | Everything you need to market a listing",
   description:
     "Turn one property into a complete marketing package — flyer, website, payment estimate, and social posts — generated in minutes.",
 };
@@ -64,23 +63,7 @@ const DELIVERABLES = [
 
 const FUTURE_ITEMS = ["Market Comp Analysis", "Open House Kit", "Seller Presentation"] as const;
 
-/**
- * TEMPORARY (Robert, 2026-07-27): skips this landing page and sends `/`
- * straight to `/dashboard` while Robert is actively testing, removing the
- * login/signup friction on top of the already-disabled auth gate (see
- * `AUTH_GATE_ENABLED` in `middleware.ts` and `src/app/(app)/layout.tsx`).
- * `/login`, `/signup`, and this landing page's own markup below are all
- * untouched — only the default entry point at `/` changes, and only while
- * this flag is `true`. Flip `SKIP_LANDING_PAGE` back to `false` to restore
- * the marketing page as the front door.
- */
-const SKIP_LANDING_PAGE = true;
-
 export default function LandingPage() {
-  if (SKIP_LANDING_PAGE) {
-    redirect("/dashboard");
-  }
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
       {/* Ambient background treatment — same navy/gold geometric accents as /login, for visual continuity between the public page and sign-in */}
@@ -111,7 +94,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-              Give Listing Lab a property and its photos. It builds the flyer, the payment estimate,
+              Give Realtor Toolbox a property and its photos. It builds the flyer, the payment estimate,
               the listing website, and the social posts — a complete marketing package, ready to share.
             </p>
 
@@ -137,7 +120,7 @@ export default function LandingPage() {
             <div className="flex flex-col items-center gap-4 rounded-3xl border border-border bg-surface/80 p-8 shadow-soft backdrop-blur-sm sm:flex-row sm:justify-center sm:gap-6 sm:p-10">
               <FlowNode label="New Listing" />
               <FlowArrow />
-              <FlowNode label="Listing Lab" emphasis />
+              <FlowNode label="Realtor Toolbox" emphasis />
               <FlowArrow />
               <div className="flex flex-col items-center gap-2 sm:items-start">
                 {DELIVERABLES.map(({ label }) => (
@@ -202,7 +185,7 @@ export default function LandingPage() {
         </main>
 
         <footer className="mx-auto max-w-6xl px-6 pb-10 text-center text-xs text-muted-foreground sm:px-8">
-          &copy; {new Date().getFullYear()} Listing Lab. All rights reserved.
+          &copy; {new Date().getFullYear()} Realtor Toolbox. All rights reserved.
         </footer>
       </div>
     </div>

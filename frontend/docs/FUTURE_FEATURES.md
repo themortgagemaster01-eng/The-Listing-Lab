@@ -67,7 +67,7 @@ branded sheet (print or digital) containing:
 - **VA** option
 - **HomeStyle renovation** option
 - **SONYMA eligibility** (New York State's down-payment assistance program
-  for first-time/eligible buyers — NY-specific)
+for first-time/eligible buyers — NY-specific)
 - Estimated closing costs
 - Cash needed to close
 - A QR code to apply
@@ -130,3 +130,43 @@ him). **Heavier AI features paid later** (bulk generation, the AI Property
 Concierge, Video Lab, etc.). This is a pricing/product decision to revisit
 once there's a working feature set to actually gate — no tier logic,
 paywall, or entitlement system should be built against this note yet.
+
+---
+
+## 4. New toolbox categories (2026-07-27 dashboard restructuring)
+
+Added to the dashboard's "Your Toolbox" nav as labeled categories, currently
+shown "Coming Soon" — no code exists yet for either. Logged here so the
+nav's promise has a real spec to point to once picked up.
+
+### Client PDF Center
+Its own category alongside Mortgage Center rather than folded into it.
+Concept: buyer-facing PDF outputs beyond the Mortgage Snapshot — net
+sheets, buyer reports, program-explainer guides — branded the same way
+every other document in the product is (Product Principle #3: brand once).
+No format, field list, or generation flow has been speced yet.
+
+### Mortgage Market Dashboard
+A standalone module (distinct from the per-property Mortgage Center) for
+market-level mortgage content: current rate trends, rate news, and
+talking points an agent/loan officer can use in client conversations.
+Needs a real rate-data source before it can ship — same "no mock data"
+rule as Property Intelligence (see above) applies here.
+
+### Three new Mortgage Center calculators
+Expansions to the existing Mortgage Center (which already has Payment
+Calculator, Compare Loan Options, Cash to Close, Affordability, and
+SONYMA/DPA):
+
+- **Mortgage Rate News** — surfaces current rate movement/context inside
+  the per-property Mortgage Center (lighter-weight than the full Mortgage
+  Market Dashboard above).
+- **Lock vs. Float Calculator** — helps a buyer compare locking today's
+  rate vs. floating, given how the math the existing `calculations.ts`
+  module already handles is extended with a rate-movement assumption.
+- **Rate Buydown Calculator** — models temporary or permanent buydown
+  scenarios (e.g., 2-1 buydown) against the standard payment calculation.
+
+None of the three have a UI, calculation spec, or data source yet — they
+extend the same modular Mortgage Center architecture (`src/lib/payment/*`,
+`components/property/payment/*`) as new sections rather than a rebuild.

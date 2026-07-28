@@ -86,5 +86,8 @@ export async function extractCompsFromPdf(fileName: string, dataUrl: string): Pr
     .filter((c): c is NonNullable<typeof c> => c !== null);
 
   if (comps.length === 0) {
-    warnings.push(`No comps could be confidently extracted from "${fileName}" — try a clearer export or enter comps manually."] };
+    warnings.push(`No comps could be confidently extracted from "${fileName}" — try a clearer export or enter comps manually.`);
+  }
+
+  return { comps, warnings };
 }

@@ -351,7 +351,7 @@ export const toolboxCategories: ToolboxCategory[] = [
         subtitle: "Standalone QR generator",
         icon: QrCode,
         iconBadgeClass: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400",
-        comingSoon: true,
+        href: "/dashboard/qr-codes",
       },
       {
         id: "tb-ai-photo-enhance",

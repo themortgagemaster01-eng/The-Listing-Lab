@@ -121,6 +121,32 @@ rebuild from scratch — it's the same underlying math (already correct in
 
 ---
 
+## 3a. AI Income Analyzer — follow-up: opt-in document storage
+
+**Status: built (2026-07-28).** The core flow — upload/photo-capture
+paystubs, W-2s, tax returns, 1099s, and bank statements; AI extraction; a
+mandatory human-confirmation step for the final estimated monthly gross
+figure; the standard non-underwriting disclaimer — is live at
+`/property/[id]/income-analyzer`. Per Robert's explicit, non-negotiable
+spec, uploaded documents are never persisted by default: they exist only in
+browser memory and the single `/api/ai/analyze-income` request, and are
+discarded immediately after the estimate is generated (see that route's and
+`IncomeAnalyzerWizard.tsx`'s header comments for the full reasoning).
+
+**Known gap, deliberately not built yet:** the wizard's summary step has an
+explicit, off-by-default "save these documents to this property" checkbox,
+but checking it currently just tells the user storage isn't connected —
+it does not fabricate a fake save. Wiring this up for real needs a **new,
+private, RLS-scoped Supabase Storage bucket** (e.g. `income-documents`),
+distinct from the existing `property-photos`/`flyer-pdfs` buckets, which
+are both public-read (see `supabase/STORAGE_SETUP.md`) — completely wrong
+for financial documents. This also needs storage policies that scope
+`insert`/`select` to the authenticated owning user only. Flag to Robert
+before building this rather than assuming the existing bucket pattern
+extends here.
+
+---
+
 ## 3. Carried-forward deferred items
 
 Captured here so nothing gets lost across doc rewrites:

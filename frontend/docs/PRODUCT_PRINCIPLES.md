@@ -18,3 +18,16 @@ Twelve standing rules that govern what gets built and how. Every new tool, featu
 ## Naming convention
 
 No "AI" prefix in feature names, going forward. **Flyer Studio**, not "AI Flyer Generator." **Mortgage Center**, not "AI Mortgage Calculator." The product is AI-powered throughout — that doesn't need to be spelled out in every tool's name. Name tools for what they do for the Realtor, not for the technology behind them.
+
+## Explicit build boundaries (hard no's)
+
+Robert's standing guardrail, applies to all future feature decisions — these categories are **never in scope**, regardless of how a request is framed:
+
+- **CRM** — no contact/lead pipeline management system.
+- **Email marketing** — no bulk sending, drip campaigns, or newsletter tooling.
+- **Transaction management** — no contract-to-close workflow/coordination platform.
+- **Accounting** — no bookkeeping, invoicing, or commission-tracking ledger.
+- **MLS replacement** — extends rule 10 above: complement the MLS, never replace or re-implement its core functions (listing syndication, search authority, etc.).
+- **Calendar platform** — no standalone scheduling/calendar product; the existing "Upcoming" panel surfaces events, it doesn't manage them.
+
+If a feature request touches one of these categories, flag it back to Robert rather than building it — this list is a hard boundary, not a default-to-build list.
